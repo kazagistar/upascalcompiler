@@ -1,16 +1,21 @@
 package lexer;
 
 public class Lexeme {
+	Token token;
+	String content;
+	int row;
+	int col;
+	
 	public Token getToken() {
-		return null;
+		return token;
 	}
 	public String getLexemeContent() {
-		return null;
+		return content;
 	}
 	public int getRow() {
-		return 0;
+		return row;
 	}
 	public int getColumn() {
-		return 0;
+		return col;
 	}
 }
