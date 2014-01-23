@@ -3,8 +3,6 @@ package uPascalCompiler;
 import java.io.*;
 
 public class Scanner {
-	
-	
 	public Lexeme getNext() {
 		return null;
 	}
