@@ -51,6 +51,11 @@ class ScannerStream implements Iterator<Byte> {
 		output.content = Arrays.toString(Arrays.copyOfRange(input, lexemeStart, index));
 		return output;
 	}
+	
+	// Check the current character without advancing
+	public byte peek() {
+		return input[index];
+	}
 
 	// Iterator interface to allow you to use this with for-each syntax
 	// http://stackoverflow.com/questions/85190/how-does-the-java-for-each-loop-work
