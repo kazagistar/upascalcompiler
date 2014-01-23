@@ -1,13 +1,13 @@
 Milestone 2
 ===========
-1. Driver that takes paramter text file
-2. getNext (dispatcher)
-3. Lexeme printer
-4. isLetter, isDigit
+1. Driver that takes paramter text file [jake]
+2. getNext (dispatcher) [jake]
+3. Lexeme printer [brad]
+4. isLetter, isDigit [andy]
 4. FSAs
-	- number
-	- string
-	- comment
-	- identifier
-		- reserved test
-	- symbol
+	- number (int, float, fixed) [brad]
+	- string [brad]
+	- comment [andy]
+	- identifier [andy]
+		- reserved test [andy]
+	- symbol [jake]
