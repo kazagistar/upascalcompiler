@@ -1,0 +1,13 @@
+Milestone 2
+===========
+1. Driver that takes paramter text file
+2. getNext (dispatcher)
+3. Lexeme printer
+4. isLetter, isDigit
+4. FSAs
+	- number
+	- string
+	- comment
+	- identifier
+		- reserved test
+	- symbol
