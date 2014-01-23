@@ -1,4 +1,4 @@
-package uPascalCompiler;
+package lexer;
 
 import java.io.*;
 

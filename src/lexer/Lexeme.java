@@ -1,4 +1,4 @@
-package uPascalCompiler;
+package lexer;
 
 public class Lexeme {
 	public Token getToken() {

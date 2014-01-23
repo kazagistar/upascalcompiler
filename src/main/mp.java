@@ -2,7 +2,7 @@
  * @author andrew.wilson9
  *
  */
-package uPascalCompiler;
+package main;
 
 public class mp {
 	
