@@ -61,7 +61,7 @@ public class Scanner {
 	//where does the print statement for our tokens go?
 	
 	//Note, in the following method, all boolean methods "isBlank(next)" are there as placeholders for actual logic.
-	private Lexeme scanNumbers(){
+	private Lexeme scanNumbers() {
 		int state = 0;
 		for (byte next : stream){
 			switch (state){
@@ -72,7 +72,7 @@ public class Scanner {
 				else return stream.emit();
 				break;
 			case 1: //state 1 in FSA
-				stream.mark(Integer_Literal);
+				stream.mark(Token.INTEGER);
 				if (isDigit(next)){
 					state = 1;
 				}
@@ -90,7 +90,7 @@ public class Scanner {
 				}else return stream.emit();
 				break;
 			case 3: //state 3 in FSA accept state for fixed literal
-				stream.mark(Fixed_Literal);
+				stream.mark(Token.FIXED);
 				if (isDigit(next)){
 					state = 3;
 				}
@@ -115,7 +115,7 @@ public class Scanner {
 				else return stream.emit();
 				break;
 			case 6: // state 6 in FSA / accept state for Float
-				stream.mark(Float_Literal);
+				stream.mark(Token.FLOAT);
 				if (isDigit(next)){
 					state = 6;
 				}
@@ -123,6 +123,7 @@ public class Scanner {
 				break;
 			}
 		}
+		return stream.emit();
 	}
 	
 	/*-brad
@@ -146,14 +147,21 @@ public class Scanner {
 				else if (next != '\n' && next != '\''){
 					state = 1;
 				}else if (next == '\''){
-					stream.mark(String_Literal);
+					stream.mark(Token.STRING);
 					state = 2;
 				}else return stream.emit();
 			}
 		}
+		return stream.emit();
 	}
 
+	private static boolean isDigit(byte c) {
+		throw new UnsupportedOperationException();
+	}
 	
+	private static boolean isLetter(byte c) {
+		throw new UnsupportedOperationException();
+	}
 	
 	
 	public static Scanner openFile(Path path) throws IOException {
