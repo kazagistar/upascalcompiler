@@ -1,13 +1,13 @@
 Milestone 2
 ===========
-1. Driver that takes paramter text file [jake]
-2. getNext (dispatcher) [jake]
+1. Driver that takes paramter text file [jake] [looks done]
+2. getNext (dispatcher) [jake] [looks done]
 3. Lexeme printer [brad] (first attempt at it done in mp.java)
-4. isLetter, isDigit [andy]
+4. isLetter, isDigit [andy] [Done]
 4. FSAs
 	- number (int, float, fixed) [brad] (should be about done, must polish though)
 	- string [brad] (should be about done, may need to polish it)
-	- comment [andy]
-	- identifier [andy]
-		- reserved test [andy]
+	- comment [andy] [done I think]
+	- identifier [andy] [almost...]
+		- reserved test [andy] [may need help on what this means again]
 	- symbol [jake]
