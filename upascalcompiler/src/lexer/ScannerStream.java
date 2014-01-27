@@ -3,7 +3,7 @@ package lexer;
 import java.util.Arrays;
 import java.util.Iterator;
 
-class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
+class ScannerStream implements Iterator<Byte> {
 	// File being scanned
 	private byte[] input;
 	
@@ -84,11 +84,5 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();	
-	}
-
-	// So I made the iterator an iterable, so I can can iterate when I iterate?
-	@Override
-	public Iterator<Byte> iterator() {
-		return this;
 	}
 }
