@@ -27,7 +27,7 @@ public class mp {
 		Lexeme curentLexeme = lexScan.getNext(); //gets next lexeme
 		System.out.format("Token: 'print token name', Lexeme content: %s, Row Number: %d, Column Number: %d%n", curentLexeme.getLexemeContent(), curentLexeme.getRow(), curentLexeme.getColumn());
 		
-		if (curentLexeme.getToken() = EOF){ //This will need to be changed so it works, but the logic is there, when the token "end of file" is found, the printing loop stops
+		if (curentLexeme.getToken() == Token.EOF){ //This will need to be changed so it works, but the logic is there, when the token "end of file" is found, the printing loop stops
 			scannerIsDone = true;
 		}
 		}
