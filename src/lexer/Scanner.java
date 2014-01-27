@@ -20,37 +20,18 @@ public class Scanner {
 		stream.lexemeStart();
 		// Select fsa to use by first character
 		byte first = stream.peek();
-		// if (isAlpha(first))
-		//   return scanIdentifier();
-		// if (isNumeric(first)) //then call numbersFSA method
-		//   return scanNumeric();
-		// if (first = '"')
-		//   return scanString();
-		// ...
-		// else
-		throw new RuntimeException("Unable to find valid machine, and error handling does not work yet");
+		if (first == '\'')
+			return scanString();
+		else if (Character.isDigit(first))
+			return scanNumbers();
+		else if (Character.isLetter(first))
+			return scanIdentifier();
+		else if (first == '{')
+			return scanComment();
+		else
+			return scanSymbol();
 	}
-	
-//	
-//	   scanSomething() {
-//	   	int state = 0; // or enum
-//	   	for (byte next : stream) {
-//	   		switch state {
-//	   		case 0:
-//	   			if (isNumeric(byte)) 
-//	   				...
-//	   		case (valid):
-//	   			stream.mark(MyToken);
-//	   			break;
-//	   		case (terminating):
-//	   			return stream.emit(); // it returns to the last marked spot
-//	   		}
-//	   	}
-//	   }
-	 
-	
-	
-	
+
 	/*-brad
 	 * FSA implementation for Numbers (combined, Integer_literal, Fixed_literal, and Float_Literal
 	 * */
@@ -66,14 +47,14 @@ public class Scanner {
 		for (byte next : stream){
 			switch (state){
 			case 0: //FSA start state
-				if (isDigit(next)){ //if next is a digit
+				if (Character.isDigit(next)){ //if next is a digit
 					state = 1;
 				}
 				else return stream.emit();
 				break;
 			case 1: //state 1 in FSA
 				stream.mark(Token.INTEGER);
-				if (isDigit(next)){
+				if (Character.isDigit(next)){
 					state = 1;
 				}
 				else if (next == '.'){
@@ -85,13 +66,13 @@ public class Scanner {
 				else return stream.emit();
 				break;
 			case 2: //state 2 in FSA
-				if (isDigit(next)){
+				if (Character.isDigit(next)){
 					state = 3;
 				}else return stream.emit();
 				break;
 			case 3: //state 3 in FSA accept state for fixed literal
 				stream.mark(Token.FIXED);
-				if (isDigit(next)){
+				if (Character.isDigit(next)){
 					state = 3;
 				}
 				else if (next == 'e' || next == 'E'){
@@ -103,20 +84,20 @@ public class Scanner {
 				if (next == '+' || next == '-'){
 					state = 5;
 				}
-				else if (isDigit(next)){ //if no + or - (empty string in FSA)
+				else if (Character.isDigit(next)){ //if no + or - (empty string in FSA)
 					state = 6;
 				}
 				else return stream.emit();;
 				break;
 			case 5: //state 5
-				if (isDigit(next)){
+				if (Character.isDigit(next)){
 					state = 6;
 				}
 				else return stream.emit();
 				break;
 			case 6: // state 6 in FSA / accept state for Float
 				stream.mark(Token.FLOAT);
-				if (isDigit(next)){
+				if (Character.isDigit(next)){
 					state = 6;
 				}
 				else return stream.emit();
@@ -154,16 +135,21 @@ public class Scanner {
 		}
 		return stream.emit();
 	}
+	
+	private Lexeme scanIdentifier() {
+		throw new RuntimeException("Detected identifier, but no FSA implemented yet");
+	}	
+	
+	private Lexeme scanComment() {
+		throw new RuntimeException("Detected comment, but no FSA implemented yet");
+	}	
+	
+	private Lexeme scanSymbol() {
+		throw new RuntimeException("Detected misc, but no FSA implemented yet");
+	}
+	
+	
 
-	private static boolean isDigit(byte c) {
-		throw new UnsupportedOperationException();
-	}
-	
-	private static boolean isLetter(byte c) {
-		throw new UnsupportedOperationException();
-	}
-	
-	
 	public static Scanner openFile(Path path) throws IOException {
 		return new Scanner(Files.readAllBytes(path));
 	}
