@@ -2,8 +2,7 @@ Milestone 2
 ===========
 1. Driver that takes paramter text file [jake]
 2. getNext (dispatcher) [jake]
-3. Lexeme printer [brad] (first attempt at it done in mp.java)
-4. isLetter, isDigit [andy]
+3. Printer change the print format, and allow for printing of errors [brad]
 4. FSAs
 	- number (int, float, fixed) [brad] (should be about done, must polish though)
 	- string [brad] (should be about done, may need to polish it)
@@ -11,3 +10,26 @@ Milestone 2
 	- identifier [andy]
 		- reserved test [andy]
 	- symbol [jake]
+
+Milestone 3
+===========
+1. Identifiers [andy]
+	- reserved word case insensitive
+	- reserved words table
+2. Comments [andy]
+	- Ignore while scanning
+	- Error checking for runaway comments
+3. String [brad]
+	- Exclude apostrophe from string (hack off ends in scanString())
+	- Double apostrophe escape/purge
+	- Watch for runaway strings (token = MP_RUN_STRING) look at directions for details.
+4. Errors
+	- String error [brad]
+	- Comment error [andy]
+	- No fsa [jake]
+	- No accept state [must be put in all FSA methods as a new state, the gutz should be the same in all methods] [all]
+5. Fix print syntax
+	- Also add ^
+6. Finish token enum [all]
+7. Create test cases/testing [all]
+8. Make source code pdf [jake]
