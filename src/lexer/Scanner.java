@@ -176,14 +176,9 @@ public class Scanner {
 				}
 				break;
 			case 3: //if EOL is found before closing of string, token is an run-on string error
-				//NOTE: I just made up error handleing procedure, when we find an error we need to be consistant on how we print it out. the following can be replaced with some other procedure easily.
+				//the actual printing of error statements and such is done in the Printer method in MP.java
 				stream.mark(Token.MP_RUN_STRING);
-				Lexeme temp = stream.emit();
-				//prints out the fact that an run-on String error was encountered at this location
-				//print out where the String started, followed by the location of the EOL character, then returns the correct error token
-				System.out.print("ERROR: Run-On String Starting on Line: " + temp.getRow() + ", Column: " +(temp.getColumn() - temp.getLexemeContent().length()) + " and ending at the ");
-				System.out.println("EOL char on Line: " +temp.getRow() + ", Column: " + temp.getColumn());
-				return temp;
+				return stream.emit();
 				}
 				
 			}
