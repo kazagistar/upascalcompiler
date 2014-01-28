@@ -88,7 +88,7 @@ public class Scanner {
 				else return stream.emit();
 				break;
 			case 1: //state 1 in FSA
-				stream.mark(Token.INTEGER);
+				stream.mark(Token.MP_INTEGER_LIT);
 				if (Character.isDigit(next)){
 					state = 1;
 				}
@@ -106,7 +106,7 @@ public class Scanner {
 				}else return stream.emit();
 				break;
 			case 3: //state 3 in FSA accept state for fixed literal
-				stream.mark(Token.FIXED);
+				stream.mark(Token.MP_FIXED_LIT);
 				if (Character.isDigit(next)){
 					state = 3;
 				}
@@ -131,7 +131,7 @@ public class Scanner {
 				else return stream.emit();
 				break;
 			case 6: // state 6 in FSA / accept state for Float
-				stream.mark(Token.FLOAT);
+				stream.mark(Token.MP_FLOAT_LIT);
 				if (Character.isDigit(next)){
 					state = 6;
 				}
@@ -154,21 +154,51 @@ public class Scanner {
 				if (next == '\''){ //how do you denot apostraphy and make it work?
 					state = 1;
 				}
-				else return stream.emit();
+				else return alterStringContents(stream.emit());
 				break;
 			case 1:
-				if (next == '"'){ //im unclear as to what the definition for string says it looks like '''' 
-					state = 1;
+				if (next == '\''){ 
+					state = 2;
 				}
 				else if (next != '\n' && next != '\''){
 					state = 1;
-				}else if (next == '\''){
-					stream.mark(Token.STRING);
-					state = 2;
-				}else return stream.emit();
+				} else if(next == '\n'){ //if EOL char is found before string is closed
+					state = 3;
+				}
+				else return stream.emit();
+				break;
+			case 2:
+				stream.mark(Token.MP_STRING_LIT);
+				if (next == '\''){
+					state = 1;
+				}else{ //remove leading and trailing "'" mark
+					return alterStringContents(stream.emit());
+				}
+				break;
+			case 3: //if EOL is found before closing of string, token is an run-on string error
+				//NOTE: I just made up error handleing procedure, when we find an error we need to be consistant on how we print it out. the following can be replaced with some other procedure easily.
+				stream.mark(Token.MP_RUN_STRING);
+				Lexeme temp = stream.emit();
+				//prints out the fact that an run-on String error was encountered at this location
+				//print out where the String started, followed by the location of the EOL character, then returns the correct error token
+				System.out.print("ERROR: Run-On String Starting on Line: " + temp.getRow() + ", Column: " +(temp.getColumn() - temp.getLexemeContent().length()) + " and ending at the ");
+				System.out.println("EOL char on Line: " +temp.getRow() + ", Column: " + temp.getColumn());
+				return temp;
+				}
+				
 			}
-		}
 		return stream.emit();
+	}
+	
+	//this method, takes a Lexeme, and alters the lexemeContents to exclude the leading and trailing apostrophes, as well as the double apostrophes in middle of string
+	//returns lexeme with altered internal content.
+	private Lexeme alterStringContents(Lexeme inLexeme){
+		String curLexemeContent = inLexeme.getLexemeContent();
+		//sets the lexemeContent of the current lexeme, to the altered string (after removal of leading and trailing "'")
+		curLexemeContent = curLexemeContent.substring(1, curLexemeContent.length());
+		//replaces all occurences of "''" with "'" (a single apostrophe instead of two of them)
+		inLexeme.setLexemeContent(curLexemeContent.replace("''", "'"));
+		return inLexeme;
 	}
 
 	private Lexeme scanSymbol() {

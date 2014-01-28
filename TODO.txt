@@ -5,7 +5,7 @@ Milestone 2
 3. Printer change the print format, and allow for printing of errors [brad]
 4. FSAs
 	- number (int, float, fixed) [brad] (should be about done, must polish though)
-	- string [brad] (should be about done, may need to polish it)
+	- string [brad]  -should be done
 	- comment [andy]
 	- identifier [andy]
 		- reserved test [andy]
@@ -19,12 +19,12 @@ Milestone 3
 2. Comments [andy]
 	- Ignore while scanning
 	- Error checking for runaway comments
-3. String [brad]
-	- Exclude apostrophe from string (hack off ends in scanString())
-	- Double apostrophe escape/purge
-	- Watch for runaway strings (token = MP_RUN_STRING) look at directions for details.
+3. String [brad] -believed to be done
+	- Exclude apostrophe from string (hack off ends in scanString()) -should be done
+	- Double apostrophe escape/purge -should be done
+	- Watch for runaway strings (token = MP_RUN_STRING) look at directions for details. -should be done 
 4. Errors
-	- String error [brad]
+	- String error [brad] - should be done (i did the printing of the error message in the scanString() method before the return of the lexeme)
 	- Comment error [andy]
 	- No fsa [jake]
 	- No accept state [must be put in all FSA methods as a new state, the gutz should be the same in all methods] [all]

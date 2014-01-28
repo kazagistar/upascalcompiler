@@ -12,6 +12,10 @@ public class Lexeme {
 	public String getLexemeContent() {
 		return content;
 	}
+	//added seter method for content, so that you can alter the Lexeme content for strings (remove leading / trailing apostrphe)
+	public void setLexemeContent(String newContent){
+		content = newContent;
+	}
 	public int getRow() {
 		return row;
 	}
