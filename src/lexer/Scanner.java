@@ -197,10 +197,39 @@ public class Scanner {
 	}
 
 	private Lexeme scanSymbol() {
-		throw new RuntimeException("Detected misc, but no FSA implemented yet");
+		switch (stream.next()) {
+		case '<':
+			stream.mark(Token.MP_LTHAN);
+			switch (stream.next()) {
+			case '>': stream.mark(Token.MP_NEQUAL); break;
+			case '=': stream.mark(Token.MP_LEQUAL); break;
+			} break;
+		case '>':
+			stream.mark(Token.MP_GTHAN);
+			switch (stream.next()) {
+			case '=': stream.mark(Token.MP_GEQUAL); break;
+			} break;
+		case ':':
+			stream.mark(Token.MP_COLON);
+			switch (stream.next()) {
+			case '=': stream.mark(Token.MP_ASSIGN); break;
+			} break;
+		case '(': stream.mark(Token.MP_RPAREN); break;
+		case ')': stream.mark(Token.MP_LPAREN); break;
+		case '=': stream.mark(Token.MP_EQUAL); break;
+		case '+': stream.mark(Token.MP_PLUS); break;
+		case '-': stream.mark(Token.MP_MINUS); break;
+		case '*': stream.mark(Token.MP_TIMES); break;
+		case ';': stream.mark(Token.MP_SCOLON); break;
+		case '.': stream.mark(Token.MP_PERIOD); break;
+		case ',': stream.mark(Token.MP_COMMA); break;
+		default:  stream.mark(Token.MP_ERROR); break;
+		}
+		return stream.emit();
 	}
 
 	public static Scanner openFile(Path path) throws IOException {
+		// Tab was here =]
 		return new Scanner(Files.readAllBytes(path));
 	}
 
