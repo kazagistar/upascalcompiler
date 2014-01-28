@@ -5,17 +5,17 @@ import java.nio.file.*;
 
 public class Scanner {
 	private ScannerStream stream;
-	
+
 	Scanner(byte[] input) {
 		stream = new ScannerStream(input);
 	}
-	
+
 	public Lexeme getNext() {
 		// Clear whitespace
 		while (isWhitespace(stream.peek())) {
 			stream.next();
 		}
-		
+
 		// Start recording lexeme
 		stream.lexemeStart();
 		// Select fsa to use by first character
@@ -32,16 +32,51 @@ public class Scanner {
 			return scanSymbol();
 	}
 
+
+	/*
+	 * Skips through comments and jumps past a line
+	 */
+	private Lexeme scanComment() {
+		for (byte next : stream) { // Need something like this or maybe I'm missing something
+			switch (stream.peek()) {
+			default:
+				getNext();
+				break;
+			case '\n':      // Skips a line
+				return;
+			}
+		}
+	}
+
+	/*
+	 * Scans an identifier. The byte is checked to see if it is a digit or String. 
+	 * This is a simple FSA that identifies the next byte and concatenates them
+	 * all together.
+	 */
+	private Lexeme scanIdentifier(byte[] string) {  
+		int state = 0;
+		for (int i = 0; i < string.length;){
+			switch (state){
+			case 0: //FSA start state
+				if (isLetter(string)) { 
+					state = 1;
+				} else {
+					return stream.emit();
+					break; 
+				}
+			case 1:
+				if (Character.isLetter(string) || isDigit(string) || string[i] == "_"){ 
+					state = 1;
+				} else { 
+					return stream.emit();
+				}
+			}
+		}
+	}
+
 	/*-brad
 	 * FSA implementation for Numbers (combined, Integer_literal, Fixed_literal, and Float_Literal
 	 * */
-	//Questions to be answered:+_+_+_+_++
-	// How do we do logic with byte? wouldent it be easier to just use char instaed of byte?
-	//when getNext() is called, where does the returned stuff go to?
-	//is this case statement looking correct?
-	//where does the print statement for our tokens go?
-	
-	//Note, in the following method, all boolean methods "isBlank(next)" are there as placeholders for actual logic.
 	private Lexeme scanNumbers() {
 		int state = 0;
 		for (byte next : stream){
@@ -135,25 +170,15 @@ public class Scanner {
 		}
 		return stream.emit();
 	}
-	
-	private Lexeme scanIdentifier() {
-		throw new RuntimeException("Detected identifier, but no FSA implemented yet");
-	}	
-	
-	private Lexeme scanComment() {
-		throw new RuntimeException("Detected comment, but no FSA implemented yet");
-	}	
-	
+
 	private Lexeme scanSymbol() {
 		throw new RuntimeException("Detected misc, but no FSA implemented yet");
 	}
-	
-	
 
 	public static Scanner openFile(Path path) throws IOException {
 		return new Scanner(Files.readAllBytes(path));
 	}
-	
+
 	private static boolean isWhitespace(byte b) {
 		return b == ' ' || b == '\t' || b == '\n' || b == '\r';
 	}
