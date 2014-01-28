@@ -2,7 +2,7 @@ Milestone 2
 ===========
 1. Driver that takes paramter text file [jake]
 2. getNext (dispatcher) [jake]
-3. Printer change the print format, and allow for printing of errors [brad]
+3. Printer change the print format, and allow for printing of errors [brad] - should be done
 4. FSAs
 	- number (int, float, fixed) [brad] (should be about done, must polish though)
 	- string [brad]  -should be done
