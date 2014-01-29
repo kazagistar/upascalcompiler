@@ -328,13 +328,15 @@ public class Scanner {
 			case 0: //FSA start state
 				if (Character.isDigit(next)){ //if next is a digit
 					state = 1;
+					stream.mark(Token.MP_INTEGER_LIT);
 				}
 				else return stream.emit();
 				break;
 			case 1: //state 1 in FSA
-				stream.mark(Token.MP_INTEGER_LIT);
+				
 				if (Character.isDigit(next)){
 					state = 1;
+					stream.mark(Token.MP_INTEGER_LIT);
 				}
 				else if (next == '.'){
 					state = 2;
@@ -347,12 +349,14 @@ public class Scanner {
 			case 2: //state 2 in FSA
 				if (Character.isDigit(next)){
 					state = 3;
+					stream.mark(Token.MP_FIXED_LIT);
 				}else return stream.emit();
 				break;
 			case 3: //state 3 in FSA accept state for fixed literal
-				stream.mark(Token.MP_FIXED_LIT);
+				
 				if (Character.isDigit(next)){
 					state = 3;
+					stream.mark(Token.MP_FIXED_LIT);
 				}
 				else if (next == 'e' || next == 'E'){
 					state = 4;
@@ -365,19 +369,22 @@ public class Scanner {
 				}
 				else if (Character.isDigit(next)){ //if no + or - (empty string in FSA)
 					state = 6;
+					stream.mark(Token.MP_FLOAT_LIT);
 				}
 				else return stream.emit();;
 				break;
 			case 5: //state 5
 				if (Character.isDigit(next)){
 					state = 6;
+					stream.mark(Token.MP_FLOAT_LIT);
 				}
 				else return stream.emit();
 				break;
 			case 6: // state 6 in FSA / accept state for Float
-				stream.mark(Token.MP_FLOAT_LIT);
+				
 				if (Character.isDigit(next)){
 					state = 6;
+					stream.mark(Token.MP_FLOAT_LIT);
 				}
 				else return stream.emit();
 				break;
@@ -402,6 +409,7 @@ public class Scanner {
 				break;
 			case 1:
 				if (next == '\''){ 
+					stream.mark(Token.MP_STRING_LIT);
 					state = 2;
 				}
 				else if (next != '\n' && next != '\''){
@@ -413,7 +421,6 @@ public class Scanner {
 				else return stream.emit();
 				break;
 			case 2:
-				stream.mark(Token.MP_STRING_LIT);
 				if (next == '\''){
 					state = 1;
 				}else{ //remove leading and trailing "'" mark
@@ -435,8 +442,8 @@ public class Scanner {
 		String curLexemeContent = inLexeme.getLexemeContent();
 		//sets the lexemeContent of the current lexeme, to the altered string (after removal of leading and trailing "'")
 		curLexemeContent = curLexemeContent.substring(1, curLexemeContent.length());
-		//replaces all occurences of "''" with "'" (a single apostrophe instead of two of them)
-		inLexeme.setLexemeContent(curLexemeContent.replace("''", "'"));
+		//replaces all occurence's of "''" with "'" (a single apostrophe instead of two of them)
+		inLexeme.content=(curLexemeContent.replace("''", "'"));
 		return inLexeme;
 	}
 
