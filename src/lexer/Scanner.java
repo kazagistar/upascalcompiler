@@ -44,21 +44,19 @@ public class Scanner {
 				// Looks for the beginning comment token
 				if (next == '{') {
 					state = 1;
+					break;
 				} else
 					return stream.emit();
 			case 1:
 				// Looks for ending token
 				if (next == '}') {
+					stream.mark(Token.MP_COMMENT);
 					return stream.emit();
-				} else {
-					state = 2;
-					stream.mark(Token.MP_RUN_COMMENT);
 				}
-			case 2:
-				// Since it found an MP_RUN_COMMENT, just return
-				return stream.emit();
+				break;
 			}
 		}
+		stream.mark(Token.MP_RUN_COMMENT);
 		return stream.emit();
 	}
 
@@ -74,20 +72,24 @@ public class Scanner {
 			case 0: //FSA start state
 				if (Character.isLetter(next) || next == '_') { 
 					state = 1;
+					stream.mark(Token.MP_IDENTIFIER);
 				} else return stream.emit();
 					break; 
 			case 1:
-				stream.mark(Token.MP_IDENTIFIER);
+				
 				if (Character.isLetter(next) || Character.isDigit(next)){ 
 					state = 1;
+					stream.mark(Token.MP_IDENTIFIER);
 				} else if (next == '_') {
 					state = 2;
+					stream.mark(Token.MP_IDENTIFIER);
 				} else { 
 					return stream.emit();
 				}
 			case 2: 
 				if(Character.isLetter(next) || Character.isDigit(next)) {
 					state = 2;
+					stream.mark(Token.MP_IDENTIFIER);
 				} else {
 					return stream.emit();
 				}
@@ -444,7 +446,7 @@ public class Scanner {
 	private Lexeme alterStringContents(Lexeme inLexeme){
 		String curLexemeContent = inLexeme.getLexemeContent();
 		//sets the lexemeContent of the current lexeme, to the altered string (after removal of leading and trailing "'")
-		curLexemeContent = curLexemeContent.substring(1, curLexemeContent.length());
+		curLexemeContent = curLexemeContent.substring(1, curLexemeContent.length()-1);
 		//replaces all occurence's of "''" with "'" (a single apostrophe instead of two of them)
 		inLexeme.content=(curLexemeContent.replace("''", "'"));
 		return inLexeme;

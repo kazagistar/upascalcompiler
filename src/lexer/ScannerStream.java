@@ -57,14 +57,16 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 			row = marked_row;
 			col = marked_col;
 			index = marked_index;
-			output.content = Arrays.toString(Arrays.copyOfRange(input,
+			output.content = new String(Arrays.copyOfRange(input,
 					lexemeStart, index));
 			return output;
 		} else {
 			// returns the full content of the Lexeme starting at first char,
 			// and ending at the char that caused the FSA error.
-			output.content = Arrays.toString(Arrays.copyOfRange(input,
+			output.content = new String(Arrays.copyOfRange(input,
 					lexemeStart, index));
+			output.row = row;
+			output.col = col;
 			output.token = Token.MP_ERROR;
 			return output;
 		}
