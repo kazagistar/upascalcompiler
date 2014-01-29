@@ -16,6 +16,7 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	private int marked_row = 0;
 	private int marked_col = 0;
 	private int marked_index = 0;
+	private boolean isMarked = false;
 	
 	// The lexeme that is currently being scanned at any given time
 	private Lexeme output;
@@ -32,24 +33,39 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 		output.row = row;
 		output.col = col;
 		lexemeStart = index;
+		//resets isMarked to false at the begining of each new Lexem
+		isMarked = false;
 	}
 	
 	// Saves a current valid token state
 	// Warning: cannot be called while no lexeme is started
+	//also sets isMarked to true signifying that an accept state has been reached
 	public void mark(Token label) {
 		marked_row = row;
 		marked_col = col;
 		marked_index = index;
 		output.token = label;
+		isMarked = true;
 	}
 	
 	// Backtracks to a previously marked state, and emits the lexeme at that location
+	//checks to see if the FSA reached a accept state prior to emit() if yes, return accept state, if no, set token to error, and return it.
 	public Lexeme emit () {
+		if (isMarked){
 		row = marked_row;
 		col = marked_col;
 		index = marked_index;
 		output.content = Arrays.toString(Arrays.copyOfRange(input, lexemeStart, index));
 		return output;
+		}
+		else {
+			//im not sure what he wants returned as directions seem unclear, so i guessed:
+			//the row and col that are returned are the current locations (dont get changed)
+			//returns the full content of the Lexeme starting at first char, and ending at the char that caused the FSA error.
+			output.content = Arrays.toString(Arrays.copyOfRange(input, lexemeStart, index));
+			output.token = Token.MP_ERROR;
+			return output;
+		}
 	}
 	
 	// Check the current character without advancing
