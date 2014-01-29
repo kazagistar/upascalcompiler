@@ -50,7 +50,7 @@ public class mp {
 		System.out.println("Format: Token Name, Line Number, Column Number, Lexeme content");
 		while (!scannerIsDone){ //this condition will most likely need to be altered, but this loop goes untill we have scanned all tokens / file is empty?
 		Lexeme curentLexeme = lexScan.getNext(); //gets next lexeme
-		System.out.format("%s %d %d %s%n", curentLexeme.getToken(), curentLexeme.getRow(), curentLexeme.getColumn(), curentLexeme.getLexemeContent());
+		System.out.format("%19s  %4d  %3d  %s%n", curentLexeme.getToken(), curentLexeme.getRow(), curentLexeme.getColumn(), curentLexeme.getLexemeContent());
 		
 		//This is where errors are checked for / printed out.
 		if (curentLexeme.getToken() == Token.MP_RUN_STRING){ //if a run-on String is encountered
