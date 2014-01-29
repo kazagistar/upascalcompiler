@@ -465,6 +465,7 @@ public class Scanner {
 			switch (stream.next()) {
 			case '=': stream.mark(Token.MP_ASSIGN); break;
 			} break;
+		case '/': stream.mark(Token.MP_FLOAT_DIVIDE); break;
 		case '(': stream.mark(Token.MP_RPAREN); break;
 		case ')': stream.mark(Token.MP_LPAREN); break;
 		case '=': stream.mark(Token.MP_EQUAL); break;
@@ -480,7 +481,6 @@ public class Scanner {
 	}
 
 	public static Scanner openFile(Path path) throws IOException {
-		// Tab was here =]
 		return new Scanner(Files.readAllBytes(path));
 	}
 
