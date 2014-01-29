@@ -12,7 +12,6 @@ import lexer.Scanner;
 import lexer.Token;
 
 public class mp {
-	
 
 	public static void main(String args[]) {
 		if (args.length != 1) {
@@ -21,31 +20,30 @@ public class mp {
 		}
 		Path path;
 		try {
-			 path = Paths.get(args[0]);
-		}
-		catch (InvalidPathException e) {
+			path = Paths.get(args[0]);
+		} catch (InvalidPathException e) {
 			System.out.println("Invalid filename");
 			return;
 		}
 		Scanner scan;
 		try {
 			scan = Scanner.openFile(path);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			System.out.println("Unable to open file");
 			return;
 		}
-		printTokens(scan); 
+		printTokens(scan);
 	}
-	
-	
-	/*prints out (and iterates through all) lexemes / tokens, it runs until EOF token is found
+
+	/*
+	 * prints out (and iterates through all) lexemes / tokens, it runs until EOF
+	 * token is found
 	 * 
-	 * Input: Takes a Scanner object
-	 * output: none
+	 * Input: Takes a Scanner object output: none
 	 */
-	public static void printTokens(Scanner lexScan){
+	public static void printTokens(Scanner lexScan) {
 		boolean scannerIsDone = false;
+
 		System.out.println("The following is a list of Lexemes and their content from the given input file.");
 		System.out.println("Format: Token Name, Line Number, Column Number, Lexeme content");
 		while (!scannerIsDone){ //this condition will most likely need to be altered, but this loop goes untill we have scanned all tokens / file is empty?
@@ -70,6 +68,8 @@ public class mp {
 		if (curentLexeme.getToken() == Token.MP_EOF){ //This will need to be changed so it works, but the logic is there, when the token "end of file" is found, the printing loop stops
 			scannerIsDone = true;
 		}
+
+		
 		}
 	}
 }
