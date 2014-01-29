@@ -32,23 +32,23 @@ public class Scanner {
 			return scanSymbol();
 	}
 
-
 	/*
 	 * Determines whether there is a run-on comment and if so, the token
 	 * is marked as such and an error message is done.
 	 */
 	private Lexeme scanComment() {
 		int state = 0;
-		for (byte next : stream) { 
+		for (byte next : stream) {
 			switch (state) {
-			case 0:      
+			case 0:
 				// Looks for the beginning comment token
-				if(next == '{') {
+				if (next == '{') {
 					state = 1;
-				} else return stream.emit();
-			case 1: 
+				} else
+					return stream.emit();
+			case 1:
 				// Looks for ending token
-				if(next == '}') {
+				if (next == '}') {
 					return stream.emit();
 				} else {
 					state = 2;
@@ -397,42 +397,45 @@ public class Scanner {
 	 * FSA implementation for String
 	 * */
 	//Method for string FSA
-	private Lexeme scanString(){
+	private Lexeme scanString() {
 		int state = 0;
-		for (byte next : stream){
-			switch (state){
-			case 0: //FSA start state
-				if (next == '\''){ //how do you denot apostraphy and make it work?
+		for (byte next : stream) {
+			switch (state) {
+			case 0: // FSA start state
+				if (next == '\'') { // how do you denot apostraphy and make it
+									// work?
 					state = 1;
-				}
-				else return alterStringContents(stream.emit());
+				} else
+					return alterStringContents(stream.emit());
 				break;
 			case 1:
-				if (next == '\''){ 
+				if (next == '\'') {
 					stream.mark(Token.MP_STRING_LIT);
 					state = 2;
-				}
-				else if (next != '\n' && next != '\''){
+				} else if (next != '\n' && next != '\'') {
 					state = 1;
-				} else if(next == '\n'){ //if EOL char is found before string is closed
+				} else if (next == '\n') { // if EOL char is found before string
+											// is closed
 					state = 3;
 					stream.mark(Token.MP_RUN_STRING);
-				}
-				else return stream.emit();
+				} else
+					return stream.emit();
 				break;
 			case 2:
-				if (next == '\''){
+				if (next == '\'') {
 					state = 1;
-				}else{ //remove leading and trailing "'" mark
+				} else { // remove leading and trailing "'" mark
 					return alterStringContents(stream.emit());
 				}
 				break;
-			case 3: // if EOL is found before closing of string, token is a run-on string error
-				// the actual printing of error statements and such is done in the Printer method in MP.java
+			case 3: // if EOL is found before closing of string, token is a
+					// run-on string error
+				// the actual printing of error statements and such is done in
+				// the Printer method in MP.java
 				return stream.emit();
-				}
-				
 			}
+
+		}
 		return stream.emit();
 	}
 	
