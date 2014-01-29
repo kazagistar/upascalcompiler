@@ -164,6 +164,7 @@ public class Scanner {
 					state = 1;
 				} else if(next == '\n'){ //if EOL char is found before string is closed
 					state = 3;
+					stream.mark(Token.MP_RUN_STRING);
 				}
 				else return stream.emit();
 				break;
@@ -177,7 +178,6 @@ public class Scanner {
 				break;
 			case 3: //if EOL is found before closing of string, token is an run-on string error
 				//the actual printing of error statements and such is done in the Printer method in MP.java
-				stream.mark(Token.MP_RUN_STRING);
 				return stream.emit();
 				}
 				
