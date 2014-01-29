@@ -1,23 +1,23 @@
 Milestone 2
 ===========
 1. Driver that takes paramter text file [jake]
-2. getNext (dispatcher) [jake]
+2. getNext (dispatcher) [jake] - should be done
 3. Printer change the print format, and allow for printing of errors [brad] - should be done
 4. FSAs
 	- number (int, float, fixed) [brad] (should be about done, must polish though)
 	- string [brad]  -should be done
-	- comment [andy]
+	- comment [andy] -should be done
 	- identifier [andy]
 		- reserved test [andy]
-	- symbol [jake]
+	- symbol [jake] -looks done
 
 Milestone 3
 ===========
 1. Identifiers [andy]
 	- reserved word case insensitive
 	- reserved words table
-2. Comments [andy]
-	- Ignore while scanning
+2. Comments [andy] - should be done
+	- Ignore while scanning 
 	- Error checking for runaway comments
 3. String [brad] -believed to be done
 	- Exclude apostrophe from string (hack off ends in scanString()) -should be done
@@ -25,7 +25,7 @@ Milestone 3
 	- Watch for runaway strings (token = MP_RUN_STRING) look at directions for details. -should be done 
 4. Errors
 	- String error [brad] - should be done (i did the printing of the error message in the scanString() method before the return of the lexeme)
-	- Comment error [andy]
+	- Comment error [andy] - should be done in the printing of the error message
 	- No fsa [jake]
 	- No accept state [must be put in all FSA methods as a new state, the gutz should be the same in all methods] [all] -(brad: "I implemented this in the scanner stream itself, so wont need to be done in each individual FSA) Note: double check that the scanner pointer is in correct location after emit() (assuming error)
 5. Fix print syntax

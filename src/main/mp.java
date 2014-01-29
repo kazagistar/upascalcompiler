@@ -61,6 +61,9 @@ public class mp {
 		}//print out the following if MP_ERROR is found
 		else if (curentLexeme.getToken() == Token.MP_ERROR){
 			System.out.println("ERROR: No accept states were found before bad input was encountered. Bad char on Line: "+ curentLexeme.getRow()+ " Column: " + curentLexeme.getColumn());
+		} // print out an error message for a MP_RUN_COMMENT 
+		else if (curentLexeme.getToken() == Token.MP_RUN_COMMENT) {
+			System.out.println("ERROR: Run-On Comment Starting on Line: " + curentLexeme.getRow() + ", Column: " + curentLexeme.getColumn());
 		}
 		
 		//this checks for End of File token, if EOF is found, stop scanning.
