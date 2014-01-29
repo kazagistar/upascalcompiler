@@ -97,19 +97,19 @@ public class Scanner {
 	}
 	
 	private Lexeme scanReservedWords() {
-			switch (stream.next()){
+			switch (Character.toLowerCase(stream.next())){
 			case 'a':
-				if(stream.next() == 'n') {
-					if(stream.next() == 'd') {
+				if(Character.toLowerCase(stream.next()) == 'n') {
+					if(Character.toLowerCase(stream.next()) == 'd') {
 						stream.mark(Token.MP_AND);
 					} else return stream.emit();
 				} else return stream.emit();
 				break;
 			case 'b':
-				if(stream.next() == 'e') {
-					if(stream.next() == 'g') {
-						if(stream.next() == 'i') {
-							if(stream.next() == 'n') {
+				if(Character.toLowerCase(stream.next()) == 'e') {
+					if(Character.toLowerCase(stream.next()) == 'g') {
+						if(Character.toLowerCase(stream.next()) == 'i') {
+							if(Character.toLowerCase(stream.next()) == 'n') {
 								stream.mark(Token.MP_BEGIN);
 							} else return stream.emit();
 						} else return stream.emit();
@@ -117,16 +117,16 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 'd':
-				if(stream.next() == 'i') {
-					if(stream.next() == 'v') {
+				if(Character.toLowerCase(stream.next()) == 'i') {
+					if(Character.toLowerCase(stream.next()) == 'v') {
 						stream.mark(Token.MP_DIV);
 					} else return stream.emit();
-				} else if (stream.next() == 'o') {
+				} else if (Character.toLowerCase(stream.next()) == 'o') {
 					stream.mark(Token.MP_DO);
-					if(stream.next() == 'w') {
-						if(stream.next() == 'n') {
-							if(stream.next() == 't') {
-								if(stream.next() == 'o') {
+					if(Character.toLowerCase(stream.next()) == 'w') {
+						if(Character.toLowerCase(stream.next()) == 'n') {
+							if(Character.toLowerCase(stream.next()) == 't') {
+								if(Character.toLowerCase(stream.next()) == 'o') {
 									stream.mark(Token.MP_DOWNTO);
 								} else return stream.emit();
 							} else return stream.emit();
@@ -135,46 +135,46 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 'e': 
-				if(stream.next() == 'l') {
-					if(stream.next() == 's') {
-						if(stream.next() == 'e') {
+				if(Character.toLowerCase(stream.next()) == 'l') {
+					if(Character.toLowerCase(stream.next()) == 's') {
+						if(Character.toLowerCase(stream.next()) == 'e') {
 							stream.mark(Token.MP_ELSE);
 						} else return stream.emit();
 					} else return stream.emit();
-				} else if (stream.next() == 'n') { 
-					if(stream.next() == 'd') {
+				} else if (Character.toLowerCase(stream.next()) == 'n') { 
+					if(Character.toLowerCase(stream.next()) == 'd') {
 						stream.mark(Token.MP_END);
 					} else return stream.emit();
 				} else return stream.emit();
 				break;
 			case 'f': 
-				if(stream.next() == 'i') {
-					if(stream.next() == 'x') {
-						if(stream.next() == 'e') {
-							if(stream.next() == 'd') {
+				if(Character.toLowerCase(stream.next()) == 'i') {
+					if(Character.toLowerCase(stream.next()) == 'x') {
+						if(Character.toLowerCase(stream.next()) == 'e') {
+							if(Character.toLowerCase(stream.next()) == 'd') {
 								stream.mark(Token.MP_FIXED);
 							} else return stream.emit();
 						} else return stream.emit();
 					} else return stream.emit();
-				} else if (stream.next() == 'l') {
-					if(stream.next() == 'o') {
-						if(stream.next() == 'a') {
-							if(stream.next() == 't') {
+				} else if (Character.toLowerCase(stream.next()) == 'l') {
+					if(Character.toLowerCase(stream.next()) == 'o') {
+						if(Character.toLowerCase(stream.next()) == 'a') {
+							if(Character.toLowerCase(stream.next()) == 't') {
 								stream.mark(Token.MP_FLOAT);
 							} else return stream.emit();
 						} else return stream.emit();
 					} else return stream.emit();
-				} else if (stream.next() == 'o') {
-					if(stream.next() == 'r') {
+				} else if (Character.toLowerCase(stream.next()) == 'o') {
+					if(Character.toLowerCase(stream.next()) == 'r') {
 						stream.mark(Token.MP_FOR); 
 					} else return stream.emit();
-				} else if (stream.next() == 'u') { 
-					if(stream.next() == 'n') {
-						if(stream.next() == 'c') {
-							if(stream.next() == 't') {
-								if(stream.next() == 'i') {
-									if(stream.next() == 'o') {
-										if(stream.next() == 'n') {
+				} else if (Character.toLowerCase(stream.next()) == 'u') { 
+					if(Character.toLowerCase(stream.next()) == 'n') {
+						if(Character.toLowerCase(stream.next()) == 'c') {
+							if(Character.toLowerCase(stream.next()) == 't') {
+								if(Character.toLowerCase(stream.next()) == 'i') {
+									if(Character.toLowerCase(stream.next()) == 'o') {
+										if(Character.toLowerCase(stream.next()) == 'n') {
 											stream.mark(Token.MP_FUNCTION);
 										} else return stream.emit();
 									} else return stream.emit();
@@ -185,14 +185,14 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 'i': 
-				if(stream.next() == 'f') {
+				if(Character.toLowerCase(stream.next()) == 'f') {
 					stream.mark(Token.MP_IF);
-				} else if (stream.next() == 'n') {
-					if(stream.next() == 't') {
-						if(stream.next() == 'e') {
-							if(stream.next() == 'g') {
-								if(stream.next() == 'e') {
-									if(stream.next() == 'r') {
+				} else if (Character.toLowerCase(stream.next()) == 'n') {
+					if(Character.toLowerCase(stream.next()) == 't') {
+						if(Character.toLowerCase(stream.next()) == 'e') {
+							if(Character.toLowerCase(stream.next()) == 'g') {
+								if(Character.toLowerCase(stream.next()) == 'e') {
+									if(Character.toLowerCase(stream.next()) == 'r') {
 										stream.mark(Token.MP_INTEGER);
 									} else return stream.emit();
 								} else return stream.emit();
@@ -202,43 +202,43 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 'm': 
-				if(stream.next() == 'o') {
-					if(stream.next() == 'd') {
+				if(Character.toLowerCase(stream.next()) == 'o') {
+					if(Character.toLowerCase(stream.next()) == 'd') {
 						stream.mark(Token.MP_MOD);
 					} else return stream.emit();
 				} else return stream.emit();
 				break;
 			case 'n': 
-				if(stream.next() == 'o') {
-					if(stream.next() == 't') {
+				if(Character.toLowerCase(stream.next()) == 'o') {
+					if(Character.toLowerCase(stream.next()) == 't') {
 						stream.mark(Token.MP_NOT);
 					} else return stream.emit();
 				} else return stream.emit();
 				break;
 			case 'o': 
-				if(stream.next() == 'r') {
+				if(Character.toLowerCase(stream.next()) == 'r') {
 					stream.mark(Token.MP_OR);
 				} else return stream.emit();
 				break;
 			case 'p': 
-				if(stream.next() == 'r') {
-					if(stream.next() == 'o') {
-						if(stream.next() == 'c') {
-							if(stream.next() == 'e') {
-								if(stream.next() == 'd') {
-									if(stream.next() == 'u') {
-										if(stream.next() == 'r') {
-											if (stream.next() == 'e') {
+				if(Character.toLowerCase(stream.next()) == 'r') {
+					if(Character.toLowerCase(stream.next()) == 'o') {
+						if(Character.toLowerCase(stream.next()) == 'c') {
+							if(Character.toLowerCase(stream.next()) == 'e') {
+								if(Character.toLowerCase(stream.next()) == 'd') {
+									if(Character.toLowerCase(stream.next()) == 'u') {
+										if(Character.toLowerCase(stream.next()) == 'r') {
+											if (Character.toLowerCase(stream.next()) == 'e') {
 												stream.mark(Token.MP_PROCEDURE);
 											} else return stream.emit();
 										} else return stream.emit();
 									} else return stream.emit();
 								} else return stream.emit();
 							} else return stream.emit();
-						} else if(stream.next() == 'g') {
-							if(stream.next() == 'r') {
-								if(stream.next() == 'a') {
-									if (stream.next() == 'm') {
+						} else if(Character.toLowerCase(stream.next()) == 'g') {
+							if(Character.toLowerCase(stream.next()) == 'r') {
+								if(Character.toLowerCase(stream.next()) == 'a') {
+									if (Character.toLowerCase(stream.next()) == 'm') {
 										stream.mark(Token.MP_PROGRAM);
 									} else return stream.emit();
 								} else return stream.emit();
@@ -248,15 +248,15 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 'r': 
-				if(stream.next() == 'e') {
-					if(stream.next() == 'a') {
-						if(stream.next() == 'd') {
+				if(Character.toLowerCase(stream.next()) == 'e') {
+					if(Character.toLowerCase(stream.next()) == 'a') {
+						if(Character.toLowerCase(stream.next()) == 'd') {
 							stream.mark(Token.MP_READ);
 						} else return stream.emit();
-					} else if(stream.next() == 'p') {
-						if(stream.next() == 'e') {
-							if(stream.next() == 'a') {
-								if(stream.next() == 't') {
+					} else if(Character.toLowerCase(stream.next()) == 'p') {
+						if(Character.toLowerCase(stream.next()) == 'e') {
+							if(Character.toLowerCase(stream.next()) == 'a') {
+								if(Character.toLowerCase(stream.next()) == 't') {
 									stream.mark(Token.MP_REPEAT);
 								} else return stream.emit();
 							} else return stream.emit();
@@ -265,21 +265,21 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 't': 
-				if(stream.next() == 'o') {
+				if(Character.toLowerCase(stream.next()) == 'o') {
 					stream.mark(Token.MP_TO);
-				} else if(stream.next() == 'h') {
-					if(stream.next() == 'e') {
-						if(stream.next() == 'n') {
+				} else if(Character.toLowerCase(stream.next()) == 'h') {
+					if(Character.toLowerCase(stream.next()) == 'e') {
+						if(Character.toLowerCase(stream.next()) == 'n') {
 							stream.mark(Token.MP_THEN);
 						} else return stream.emit();
 					} else return stream.emit();
 				} else return stream.emit();
 				break;
 			case 'u': 
-				if(stream.next() == 'n') {
-					if(stream.next() == 't') {
-						if(stream.next() == 'i') { 
-							if(stream.next() == 'l') {
+				if(Character.toLowerCase(stream.next()) == 'n') {
+					if(Character.toLowerCase(stream.next()) == 't') {
+						if(Character.toLowerCase(stream.next()) == 'i') { 
+							if(Character.toLowerCase(stream.next()) == 'l') {
 								stream.mark(Token.MP_UNTIL);
 							} else return stream.emit();
 						} else return stream.emit();
@@ -287,25 +287,25 @@ public class Scanner {
 				} else return stream.emit();
 				break;
 			case 'v': 
-				if(stream.next() == 'a') {
-					if(stream.next() == 'r') {
+				if(Character.toLowerCase(stream.next()) == 'a') {
+					if(Character.toLowerCase(stream.next()) == 'r') {
 						stream.mark(Token.MP_VAR);
 					} else return stream.emit();
 				} else return stream.emit();
 				break;
 			case 'w': 
-				if(stream.next() == 'h') {
-					if(stream.next() == 'i') {
-						if(stream.next() == 'l') { 
-							if(stream.next() == 'e') {
+				if(Character.toLowerCase(stream.next()) == 'h') {
+					if(Character.toLowerCase(stream.next()) == 'i') {
+						if(Character.toLowerCase(stream.next()) == 'l') { 
+							if(Character.toLowerCase(stream.next()) == 'e') {
 								stream.mark(Token.MP_WHILE);
 							} else return stream.emit();
 						} else return stream.emit();
 					} else return stream.emit();
-				} else if(stream.next() == 'r') {
-					if(stream.next() == 'i') {
-						if(stream.next() == 't') { 
-							if(stream.next() == 'e') {
+				} else if(Character.toLowerCase(stream.next()) == 'r') {
+					if(Character.toLowerCase(stream.next()) == 'i') {
+						if(Character.toLowerCase(stream.next()) == 't') { 
+							if(Character.toLowerCase(stream.next()) == 'e') {
 								stream.mark(Token.MP_WRITE);
 							} else return stream.emit();
 						} else return stream.emit();

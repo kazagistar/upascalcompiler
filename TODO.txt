@@ -7,18 +7,18 @@ Milestone 2
 	- number (int, float, fixed) [brad] (should be about done, must polish though)
 	- string [brad]  -should be done
 	- comment [andy] -should be done
-	- identifier [andy]
-		- reserved test [andy]
+	- identifier [andy] -should be done
+		- reserved test [andy] -should be done
 	- symbol [jake] -looks done
 
 Milestone 3
 ===========
 1. Identifiers [andy]
-	- reserved word case insensitive
-	- reserved words table
-2. Comments [andy] - should be done
-	- Ignore while scanning 
-	- Error checking for runaway comments
+	- reserved word case insensitive -should be done
+	- reserved words table -believe this is done as a terrible code...Is this the hash function?
+2. Comments [andy] -should be done
+	- Ignore while scanning -should be done
+	- Error checking for runaway comments -should be done
 3. String [brad] -believed to be done
 	- Exclude apostrophe from string (hack off ends in scanString()) -should be done
 	- Double apostrophe escape/purge -should be done
