@@ -4,7 +4,7 @@
  */
 package main;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 
 import lexer.Lexeme;
@@ -15,27 +15,42 @@ public class mp {
 	
 
 	public static void main(String args[]) {
-		if (args.length != 1) {
-			System.out.println("Please pass a file to parse");
-			return;
-		}
-		Path path;
+		Writer tokenwriter = null;
+		Scanner scanner = null;
+		
+		// Search for each possible argument flag one at a time
 		try {
-			 path = Paths.get(args[0]);
+			int index = 0;
+			
+			// -t argument: print tokens to file
+			if (args[index].equals("-t")) {
+	    		try {
+	        		tokenwriter = new BufferedWriter(new OutputStreamWriter(
+	        		          new FileOutputStream(args[++index]), "utf-8"));
+	    		}
+	    		catch (ArrayIndexOutOfBoundsException e) { errorAndDie("Filename expected following -t"); }
+	    	    catch (UnsupportedEncodingException e) { errorAndDie("Could not decode tokenfile at path \"" + args[index] + "\""); }
+				catch (FileNotFoundException e) { errorAndDie("Could not find tokenfile at path \"" + args[index] + "\""); }
+	    		index++;
+			}
+			
+			// Final argument: input file to parse
+			try {
+				scanner = Scanner.openFile(Paths.get(args[index]));
+			}
+			catch (InvalidPathException e) { errorAndDie("Invalid path to input file at path \"" + args[index] + "\""); }
+			catch (IOException e) { errorAndDie("Error while reading input file at path  \"" + args[index] + "\""); }
+			
 		}
-		catch (InvalidPathException e) {
-			System.out.println("Invalid filename");
-			return;
-		}
-		Scanner scan;
-		try {
-			scan = Scanner.openFile(path);
-		}
-		catch (IOException e) {
-			System.out.println("Unable to open file");
-			return;
-		}
-		printTokens(scan); 
+		catch (ArrayIndexOutOfBoundsException e) { errorAndDie("Missing input file parameter"); }
+		
+		printTokens(scanner);
+	}
+	
+	private static void errorAndDie(String error) {
+		System.out.println(error);
+		System.out.println("Usage: mp [-t TOKENFILE] INPUTFILE");
+		System.exit(1);
 	}
 	
 	
