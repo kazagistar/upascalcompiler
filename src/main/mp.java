@@ -15,7 +15,7 @@ public class mp {
 	
 
 	public static void main(String args[]) {
-		Writer tokenwriter = null;
+		PrintWriter tokenwriter = null;
 		Scanner scanner = null;
 		
 		// Search for each possible argument flag one at a time
@@ -25,8 +25,7 @@ public class mp {
 			// -t argument: print tokens to file
 			if (args[index].equals("-t")) {
 	    		try {
-	        		tokenwriter = new BufferedWriter(new OutputStreamWriter(
-	        		          new FileOutputStream(args[++index]), "utf-8"));
+	        		tokenwriter = new PrintWriter(args[++index], "utf-8");
 	    		}
 	    		catch (ArrayIndexOutOfBoundsException e) { errorAndDie("Filename expected following -t"); }
 	    	    catch (UnsupportedEncodingException e) { errorAndDie("Could not decode tokenfile at path \"" + args[index] + "\""); }
@@ -44,7 +43,7 @@ public class mp {
 		}
 		catch (ArrayIndexOutOfBoundsException e) { errorAndDie("Missing input file parameter"); }
 		
-		printTokens(scanner);
+		printTokens(tokenwriter, scanner);
 	}
 	
 	private static void errorAndDie(String error) {
@@ -59,7 +58,7 @@ public class mp {
 	 * Input: Takes a Scanner object
 	 * output: none
 	 */
-	public static void printTokens(Scanner lexScan){
+	public static void printTokens(PrintWriter token,Scanner lexScan){
 		boolean scannerIsDone = false;
 
 		System.out.println("The following is a list of Lexemes and their content from the given input file.");
@@ -67,6 +66,7 @@ public class mp {
 		while (!scannerIsDone){ //this condition will most likely need to be altered, but this loop goes untill we have scanned all tokens / file is empty?
 			Lexeme curentLexeme = lexScan.getNext(); //gets next lexeme
 			System.out.format("%19s  %4d  %3d  %s%n", curentLexeme.getToken(), curentLexeme.getRow(), curentLexeme.getColumn(), curentLexeme.getLexemeContent());
+			token.print(String.format("%-19s  %-4d  %-3d  %s%n", curentLexeme.getToken(), curentLexeme.getRow(), curentLexeme.getColumn(), curentLexeme.getLexemeContent()));
 			
 			//This is where errors are checked for / printed out.
 			if (curentLexeme.getToken() == Token.MP_RUN_STRING){ //if a run-on String is encountered
@@ -74,12 +74,16 @@ public class mp {
 				//print out where the String started, followed by the location of the EOL character, then returns the correct error token
 				System.out.print("ERROR: Run-On String Starting on Line: " + curentLexeme.getRow() + ", Column: " +(curentLexeme.getColumn() - curentLexeme.getLexemeContent().length()) + " and ending at the ");
 				System.out.println("EOL char on Line: " +curentLexeme.getRow() + ", Column: " + curentLexeme.getColumn());
+				token.print("ERROR: Run-On String Starting on Line: " + curentLexeme.getRow() + ", Column: " +(curentLexeme.getColumn() - curentLexeme.getLexemeContent().length()) + " and ending at the ");
+				token.println("EOL char on Line: " +curentLexeme.getRow() + ", Column: " + curentLexeme.getColumn());
 			}//print out the following if MP_ERROR is found
 			else if (curentLexeme.getToken() == Token.MP_ERROR){
 				System.out.println("ERROR: No accept states were found before bad input was encountered. Bad char on Line: "+ curentLexeme.getRow()+ " Column: " + curentLexeme.getColumn());
+				token.println("ERROR: No accept states were found before bad input was encountered. Bad char on Line: "+ curentLexeme.getRow()+ " Column: " + curentLexeme.getColumn());
 			} // print out an error message for a MP_RUN_COMMENT 
 			else if (curentLexeme.getToken() == Token.MP_RUN_COMMENT) {
 				System.out.println("ERROR: Run-On Comment Starting on Line: " + curentLexeme.getRow() + ", Column: " + curentLexeme.getColumn());
+				token.println("ERROR: Run-On Comment Starting on Line: " + curentLexeme.getRow() + ", Column: " + curentLexeme.getColumn());
 			}
 			
 			//this checks for End of File token, if EOF is found, stop scanning.
@@ -87,5 +91,6 @@ public class mp {
 				scannerIsDone = true;
 			}
 		}
+		token.close();
 	}
 }
