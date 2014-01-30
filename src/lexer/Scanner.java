@@ -12,8 +12,18 @@ public class Scanner {
 
 	public Lexeme getNext() {
 		// Clear whitespace
-		while (isWhitespace(stream.peek())) {
-			stream.next();
+		while (true) {
+			if (stream.isFinished()) {
+				stream.lexemeStart();
+				stream.mark(Token.MP_EOF);
+				return stream.emit();
+			}
+			else if (isWhitespace(stream.peek())) {
+				stream.next();
+			}
+			else {
+				break;
+			}
 		}
 
 		// Start recording lexeme

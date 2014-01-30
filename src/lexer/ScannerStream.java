@@ -76,6 +76,10 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	public byte peek() {
 		return input[index];
 	}
+	
+	public boolean isFinished() {
+		return index == input.length;
+	}
 
 	// Iterator interface to allow you to use this with for-each syntax
 	// http://stackoverflow.com/questions/85190/how-does-the-java-for-each-loop-work
