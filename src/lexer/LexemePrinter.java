@@ -14,7 +14,7 @@ public class LexemePrinter implements LexemeProvider {
 	@Override
 	public Lexeme getNext() {
 		Lexeme current = source.getNext();
-		writer.format("%19s  %4d  %3d  %s%n", current.getToken(), current.getRow(), current.getColumn(), current.getLexemeContent());
+		writer.format("%-19s  %-4d  %-3d  %s%n", current.getToken(), current.getRow(), current.getColumn(), current.getLexemeContent());
 		return current;
 	}
 }

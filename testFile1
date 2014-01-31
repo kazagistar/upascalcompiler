@@ -1,13 +1,15 @@
-for each test case type, we should have an edge case (on each edge), and 1-3 normal cases. test the errors as well
--also, we need to figure out what SHOULD be output if all is working well (after we have the cases written but before we run test)
+hello
+=] 
+I like pi
+$^.^$
 
-//string test cases
-
-//number test cases (int, fixed, float w/ all the fixings / variations (1 of each))
-
-//comment test cases
-
-//identifier test cases (including at least one case for each of the reserved words)
-
-//symbol test cases (cases for each symbol)
-
+*(O.O)*
+(~.~)''^''
+'<(-.-<)(^-.-^)(>-.-)>'
+'("")(^-.-^)("") WRAWWWRRRRR IM A BEAR!!!!'
+123456.234e564
+12e10
+12E10
+134.455
+123
+567.6

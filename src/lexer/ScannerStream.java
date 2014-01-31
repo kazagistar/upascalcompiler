@@ -8,7 +8,7 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	private byte[] input;
 
 	// Current location in the file
-	private int row = 0;
+	private int row = 1;
 	private int col = 0;
 	private int index = 0;
 
@@ -95,10 +95,10 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	public Byte next() {
 		byte rtrn = input[index];
 		if (rtrn == '\n') {
-			row = 0;
-			col++;
-		} else {
+			col = 0;
 			row++;
+		} else {
+			col++;
 		}
 		index++;
 		return rtrn;
