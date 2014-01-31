@@ -1,0 +1,43 @@
+MP_IDENTIFIER        1     0    hello
+MP_EQUAL             2     0    =
+MP_ERROR             2     1    ]
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 2 Column: 1
+MP_IDENTIFIER        3     0    I
+MP_IDENTIFIER        3     2    like
+MP_IDENTIFIER        3     7    pi
+MP_ERROR             4     0    $
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 4 Column: 0
+MP_ERROR             4     1    ^
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 4 Column: 1
+MP_PERIOD            4     2    .
+MP_ERROR             4     3    ^
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 4 Column: 3
+MP_ERROR             4     4    $
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 4 Column: 4
+MP_TIMES             6     0    *
+MP_RPAREN            6     1    (
+MP_IDENTIFIER        6     2    O
+MP_PERIOD            6     3    .
+MP_IDENTIFIER        6     4    O
+MP_LPAREN            6     5    )
+MP_TIMES             6     6    *
+MP_RPAREN            7     0    (
+MP_ERROR             7     1    ~
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 7 Column: 1
+MP_PERIOD            7     2    .
+MP_ERROR             7     3    ~
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 7 Column: 3
+MP_LPAREN            7     4    )
+MP_STRING_LIT        7     5    
+MP_ERROR             7     7    ^
+ERROR: No accept states were found before bad input was encountered. Bad char on Line: 7 Column: 7
+MP_STRING_LIT        7     8    
+MP_STRING_LIT        8     0    <(-.-<)(^-.-^)(>-.-)>
+MP_STRING_LIT        9     0    ("")(^-.-^)("") WRAWWWRRRRR IM A BEAR!!!!
+MP_FLOAT_LIT         10    0    123456.234e564
+MP_FLOAT_LIT         11    0    12e10
+MP_FLOAT_LIT         12    0    12E10
+MP_FIXED_LIT         13    0    134.455
+MP_INTEGER_LIT       14    0    123
+MP_FIXED_LIT         15    0    567.6
+MP_EOF               15    5    
