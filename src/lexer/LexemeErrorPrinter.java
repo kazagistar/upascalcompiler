@@ -27,7 +27,6 @@ public class LexemeErrorPrinter implements LexemeProvider {
 		else if (current.getToken() == Token.MP_RUN_COMMENT) {
 			writer.println("SCAN ERROR: Run-On Comment Starting on Line: " + current.getRow() + ", Column: " + current.getColumn());
 		}
-		if (current.getToken() == Token.MP_EOF) { writer.close(); }
 		return current;
 	}
 }

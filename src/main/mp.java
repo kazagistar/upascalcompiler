@@ -13,7 +13,9 @@ public class mp {
 	
 
 	public static void main(String args[]) {
-		Writer tokenWriter = null;
+		PrintWriter tokenWriter = null;
+		// Create a print writer to output to stdout
+		PrintWriter stdout = new PrintWriter(new BufferedOutputStream(System.out));
 		LexemeProvider scanner = null;
 		boolean verbose = false;
 		
@@ -30,8 +32,7 @@ public class mp {
 			// -t argument: print tokens to file
 			if (args[index].equals("-t")) {
 	    		try {
-	        		tokenWriter = new BufferedWriter(new OutputStreamWriter(
-	        		          new FileOutputStream(args[++index]), "utf-8"));
+	        		tokenWriter = new PrintWriter(args[++index], "utf-8");
 	    		}
 	    		catch (ArrayIndexOutOfBoundsException e) { errorAndDie("Filename expected following -t"); }
 	    	    catch (UnsupportedEncodingException e) { errorAndDie("Could not decode tokenfile at path \"" + args[index] + "\""); }
@@ -45,27 +46,32 @@ public class mp {
 			}
 			catch (InvalidPathException e) { errorAndDie("Invalid path to input file at path \"" + args[index] + "\""); }
 			catch (IOException e) { errorAndDie("Error while reading input file at path  \"" + args[index] + "\""); }
-			
 		}
 		catch (ArrayIndexOutOfBoundsException e) { errorAndDie("Missing input file parameter"); }
-		
 
+		// Set up a sequence of classes to process the lexemes
 		scanner = new LexemeFilter(scanner, Token.MP_COMMENT);
-		scanner = new LexemeErrorPrinter(scanner, new OutputStreamWriter(System.out));
+		scanner = new LexemeErrorPrinter(scanner, stdout);
 		if (tokenWriter != null)
 			scanner = new LexemePrinter(scanner, tokenWriter);
 		if (verbose)
-			scanner = new LexemePrinter(scanner, new OutputStreamWriter(System.out));
+			scanner = new LexemePrinter(scanner, stdout);
 		
+		// Pull all lexemes
 		Lexeme lexeme;
 		do {
 			lexeme = scanner.getNext();
 		} while (lexeme.getToken() != Token.MP_EOF);
+		
+		// Close output streams
+		stdout.close();
+		if (tokenWriter != null) { tokenWriter.close(); }
 	}
 	
+	// Error message to print if given invalid parameters
 	private static void errorAndDie(String error) {
 		System.out.println(error);
-		System.out.println("Usage: mp [-t TOKENFILE] INPUTFILE");
+		System.out.println("Usage: mp [-v] [-t TOKENFILE] INPUTFILE");
 		System.exit(1);
 	}
 }
