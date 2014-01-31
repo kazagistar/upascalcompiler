@@ -3,13 +3,14 @@ package lexer;
 import java.io.*;
 import java.nio.file.*;
 
-public class Scanner {
+public class Scanner implements LexemeProvider {
 	private ScannerStream stream;
 
 	Scanner(byte[] input) {
 		stream = new ScannerStream(input);
 	}
 
+	@Override
 	public Lexeme getNext() {
 		// Clear whitespace
 		while (true) {
