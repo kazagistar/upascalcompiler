@@ -2,9 +2,11 @@ package lexer;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.HashMap;
 
 public class Scanner implements LexemeProvider {
 	private ScannerStream stream;
+	private static final HashMap<String, Token> reservedWords = initReservedWords();
 
 	Scanner(byte[] input) {
 		stream = new ScannerStream(input);
@@ -84,7 +86,7 @@ public class Scanner implements LexemeProvider {
 				if (Character.isLetter(next) || next == '_') { 
 					state = 1;
 					stream.mark(Token.MP_IDENTIFIER);
-				} else return stream.emit();
+				} else return checkForReservedWordAndEmit();
 					break; 
 			case 1:
 				
@@ -95,242 +97,29 @@ public class Scanner implements LexemeProvider {
 					state = 2;
 					stream.mark(Token.MP_IDENTIFIER);
 				} else { 
-					return stream.emit();
+					return checkForReservedWordAndEmit();
 				}
 			case 2: 
 				if(Character.isLetter(next) || Character.isDigit(next)) {
 					state = 2;
 					stream.mark(Token.MP_IDENTIFIER);
 				} else {
-					return stream.emit();
+					return checkForReservedWordAndEmit();
 				}
 			}
 		}
-		return stream.emit();
+		return checkForReservedWordAndEmit();
 	}
 	
-	private Lexeme scanReservedWords() {
-			switch (Character.toLowerCase(stream.next())){
-			case 'a':
-				if(Character.toLowerCase(stream.next()) == 'n') {
-					if(Character.toLowerCase(stream.next()) == 'd') {
-						stream.mark(Token.MP_AND);
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'b':
-				if(Character.toLowerCase(stream.next()) == 'e') {
-					if(Character.toLowerCase(stream.next()) == 'g') {
-						if(Character.toLowerCase(stream.next()) == 'i') {
-							if(Character.toLowerCase(stream.next()) == 'n') {
-								stream.mark(Token.MP_BEGIN);
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'd':
-				if(Character.toLowerCase(stream.next()) == 'i') {
-					if(Character.toLowerCase(stream.next()) == 'v') {
-						stream.mark(Token.MP_DIV);
-					} else return stream.emit();
-				} else if (Character.toLowerCase(stream.next()) == 'o') {
-					stream.mark(Token.MP_DO);
-					if(Character.toLowerCase(stream.next()) == 'w') {
-						if(Character.toLowerCase(stream.next()) == 'n') {
-							if(Character.toLowerCase(stream.next()) == 't') {
-								if(Character.toLowerCase(stream.next()) == 'o') {
-									stream.mark(Token.MP_DOWNTO);
-								} else return stream.emit();
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'e': 
-				if(Character.toLowerCase(stream.next()) == 'l') {
-					if(Character.toLowerCase(stream.next()) == 's') {
-						if(Character.toLowerCase(stream.next()) == 'e') {
-							stream.mark(Token.MP_ELSE);
-						} else return stream.emit();
-					} else return stream.emit();
-				} else if (Character.toLowerCase(stream.next()) == 'n') { 
-					if(Character.toLowerCase(stream.next()) == 'd') {
-						stream.mark(Token.MP_END);
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'f': 
-				if(Character.toLowerCase(stream.next()) == 'i') {
-					if(Character.toLowerCase(stream.next()) == 'x') {
-						if(Character.toLowerCase(stream.next()) == 'e') {
-							if(Character.toLowerCase(stream.next()) == 'd') {
-								stream.mark(Token.MP_FIXED);
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else if (Character.toLowerCase(stream.next()) == 'l') {
-					if(Character.toLowerCase(stream.next()) == 'o') {
-						if(Character.toLowerCase(stream.next()) == 'a') {
-							if(Character.toLowerCase(stream.next()) == 't') {
-								stream.mark(Token.MP_FLOAT);
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else if (Character.toLowerCase(stream.next()) == 'o') {
-					if(Character.toLowerCase(stream.next()) == 'r') {
-						stream.mark(Token.MP_FOR); 
-					} else return stream.emit();
-				} else if (Character.toLowerCase(stream.next()) == 'u') { 
-					if(Character.toLowerCase(stream.next()) == 'n') {
-						if(Character.toLowerCase(stream.next()) == 'c') {
-							if(Character.toLowerCase(stream.next()) == 't') {
-								if(Character.toLowerCase(stream.next()) == 'i') {
-									if(Character.toLowerCase(stream.next()) == 'o') {
-										if(Character.toLowerCase(stream.next()) == 'n') {
-											stream.mark(Token.MP_FUNCTION);
-										} else return stream.emit();
-									} else return stream.emit();
-								} else return stream.emit();
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'i': 
-				if(Character.toLowerCase(stream.next()) == 'f') {
-					stream.mark(Token.MP_IF);
-				} else if (Character.toLowerCase(stream.next()) == 'n') {
-					if(Character.toLowerCase(stream.next()) == 't') {
-						if(Character.toLowerCase(stream.next()) == 'e') {
-							if(Character.toLowerCase(stream.next()) == 'g') {
-								if(Character.toLowerCase(stream.next()) == 'e') {
-									if(Character.toLowerCase(stream.next()) == 'r') {
-										stream.mark(Token.MP_INTEGER);
-									} else return stream.emit();
-								} else return stream.emit();
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'm': 
-				if(Character.toLowerCase(stream.next()) == 'o') {
-					if(Character.toLowerCase(stream.next()) == 'd') {
-						stream.mark(Token.MP_MOD);
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'n': 
-				if(Character.toLowerCase(stream.next()) == 'o') {
-					if(Character.toLowerCase(stream.next()) == 't') {
-						stream.mark(Token.MP_NOT);
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'o': 
-				if(Character.toLowerCase(stream.next()) == 'r') {
-					stream.mark(Token.MP_OR);
-				} else return stream.emit();
-				break;
-			case 'p': 
-				if(Character.toLowerCase(stream.next()) == 'r') {
-					if(Character.toLowerCase(stream.next()) == 'o') {
-						if(Character.toLowerCase(stream.next()) == 'c') {
-							if(Character.toLowerCase(stream.next()) == 'e') {
-								if(Character.toLowerCase(stream.next()) == 'd') {
-									if(Character.toLowerCase(stream.next()) == 'u') {
-										if(Character.toLowerCase(stream.next()) == 'r') {
-											if (Character.toLowerCase(stream.next()) == 'e') {
-												stream.mark(Token.MP_PROCEDURE);
-											} else return stream.emit();
-										} else return stream.emit();
-									} else return stream.emit();
-								} else return stream.emit();
-							} else return stream.emit();
-						} else if(Character.toLowerCase(stream.next()) == 'g') {
-							if(Character.toLowerCase(stream.next()) == 'r') {
-								if(Character.toLowerCase(stream.next()) == 'a') {
-									if (Character.toLowerCase(stream.next()) == 'm') {
-										stream.mark(Token.MP_PROGRAM);
-									} else return stream.emit();
-								} else return stream.emit();
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'r': 
-				if(Character.toLowerCase(stream.next()) == 'e') {
-					if(Character.toLowerCase(stream.next()) == 'a') {
-						if(Character.toLowerCase(stream.next()) == 'd') {
-							stream.mark(Token.MP_READ);
-						} else return stream.emit();
-					} else if(Character.toLowerCase(stream.next()) == 'p') {
-						if(Character.toLowerCase(stream.next()) == 'e') {
-							if(Character.toLowerCase(stream.next()) == 'a') {
-								if(Character.toLowerCase(stream.next()) == 't') {
-									stream.mark(Token.MP_REPEAT);
-								} else return stream.emit();
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 't': 
-				if(Character.toLowerCase(stream.next()) == 'o') {
-					stream.mark(Token.MP_TO);
-				} else if(Character.toLowerCase(stream.next()) == 'h') {
-					if(Character.toLowerCase(stream.next()) == 'e') {
-						if(Character.toLowerCase(stream.next()) == 'n') {
-							stream.mark(Token.MP_THEN);
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'u': 
-				if(Character.toLowerCase(stream.next()) == 'n') {
-					if(Character.toLowerCase(stream.next()) == 't') {
-						if(Character.toLowerCase(stream.next()) == 'i') { 
-							if(Character.toLowerCase(stream.next()) == 'l') {
-								stream.mark(Token.MP_UNTIL);
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'v': 
-				if(Character.toLowerCase(stream.next()) == 'a') {
-					if(Character.toLowerCase(stream.next()) == 'r') {
-						stream.mark(Token.MP_VAR);
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			case 'w': 
-				if(Character.toLowerCase(stream.next()) == 'h') {
-					if(Character.toLowerCase(stream.next()) == 'i') {
-						if(Character.toLowerCase(stream.next()) == 'l') { 
-							if(Character.toLowerCase(stream.next()) == 'e') {
-								stream.mark(Token.MP_WHILE);
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else if(Character.toLowerCase(stream.next()) == 'r') {
-					if(Character.toLowerCase(stream.next()) == 'i') {
-						if(Character.toLowerCase(stream.next()) == 't') { 
-							if(Character.toLowerCase(stream.next()) == 'e') {
-								stream.mark(Token.MP_WRITE);
-							} else return stream.emit();
-						} else return stream.emit();
-					} else return stream.emit();
-				} else return stream.emit();
-				break;
-			default: stream.mark(Token.MP_ERROR); break;
-			}
-		
-		return stream.emit();
+	private Lexeme checkForReservedWordAndEmit() {
+		Lexeme current = stream.emit();
+		String word = current.content.toLowerCase();
+		Token possible = reservedWords.get(word);
+		if (possible != null)
+			current.token = possible;
+		return current;
 	}
-
+	
 	/*-brad
 	 * FSA implementation for Numbers (combined, Integer_literal, Fixed_literal, and Float_Literal
 	 * */
@@ -494,6 +283,42 @@ public class Scanner implements LexemeProvider {
 		default:  stream.mark(Token.MP_ERROR); break;
 		}
 		return stream.emit();
+	}
+	
+	private static HashMap<String, Token> initReservedWords() {
+		HashMap<String, Token> reserved = new HashMap<String, Token>();
+		reserved.put("and", Token.MP_AND);
+		reserved.put("begin", Token.MP_BEGIN);
+		reserved.put("boolean", Token.MP_BOOLEAN);
+		reserved.put("div", Token.MP_DIV);
+		reserved.put("do", Token.MP_DO);
+		reserved.put("downto", Token.MP_DOWNTO);
+		reserved.put("else", Token.MP_ELSE);
+		reserved.put("end", Token.MP_END);
+		reserved.put("false", Token.MP_FALSE);
+		reserved.put("fixed", Token.MP_FIXED);
+		reserved.put("float", Token.MP_FLOAT);
+		reserved.put("for", Token.MP_FOR);
+		reserved.put("function", Token.MP_FUNCTION);
+		reserved.put("if", Token.MP_IF);
+		reserved.put("integer", Token.MP_INTEGER);
+		reserved.put("mod", Token.MP_MOD);
+		reserved.put("not", Token.MP_NOT);
+		reserved.put("or", Token.MP_OR);
+		reserved.put("procedure", Token.MP_PROCEDURE);
+		reserved.put("program", Token.MP_PROGRAM);
+		reserved.put("read", Token.MP_READ);
+		reserved.put("repeat", Token.MP_REPEAT);
+		reserved.put("string", Token.MP_STRING);
+		reserved.put("then", Token.MP_THEN);
+		reserved.put("true", Token.MP_TRUE);
+		reserved.put("to", Token.MP_TO);
+		reserved.put("until", Token.MP_UNTIL);
+		reserved.put("var", Token.MP_VAR);
+		reserved.put("while", Token.MP_WHILE);
+		reserved.put("write", Token.MP_WRITE);
+		reserved.put("writeln", Token.MP_WRITELN);
+		return reserved;
 	}
 
 	public static Scanner openFile(Path path) throws IOException {
