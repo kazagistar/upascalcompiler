@@ -11,6 +11,7 @@ Milestone 2
 		- reserved test [andy] -should be done
 	- symbol [jake] -looks done
 
+
 Milestone 3
 ===========
 1. Identifiers [andy]
@@ -33,3 +34,13 @@ Milestone 3
 6. Finish token enum [all]
 7. Create test cases/testing [all]
 8. Make source code pdf [jake]
+
+
+Milestone 4
+===========
+- Brad rules 1-43
+- Jake rules 44-81
+- Andy rules 82-115
+
+Each "NonTerminal left hand side" gets its own method, 
+Each "righthandside" gets its own case statement in the method.
