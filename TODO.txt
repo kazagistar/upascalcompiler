@@ -38,9 +38,10 @@ Milestone 3
 
 Milestone 4
 ===========
-- Brad rules 1-43
+- Brad rules 1-43 (DONE! There are some lookaheads I could not determine, but I figured out most of them, i left comments at the ones that hold "dummy" values)
 - Jake rules 44-81
 - Andy rules 82-115
 
 Each "NonTerminal left hand side" gets its own method, 
-Each "righthandside" gets its own case statement in the method.
+Each "righthandside" gets its own case in the method.
+when a rule points to empty string (epsilon) the rule in the case statement = "default: return;" and there is no error() call, an error will be found higher up the tree (if there is one at all)
