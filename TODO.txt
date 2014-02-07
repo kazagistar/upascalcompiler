@@ -39,8 +39,8 @@ Milestone 3
 Milestone 4
 ===========
 - Brad rules 1-43 (DONE! There are some lookaheads I could not determine, but I figured out most of them, i left comments at the ones that hold "dummy" values)
-- Jake rules 44-81
-- Andy rules 82-115
+- Jake rules 44-81 (DONE --> There may be some lookahead items still needing to be fixed. I denoted most of them)
+- Andy rules 82-115 (DONE --> There may be some lookahead items still needing to be fixed. I denoted most of them)
 
 Each "NonTerminal left hand side" gets its own method, 
 Each "righthandside" gets its own case in the method.
