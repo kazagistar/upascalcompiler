@@ -425,4 +425,615 @@ public class Parser {
 			return;
 	}
 }
+	// 45 ReadStatement
+	private void readStatement() {
+		switch (lookahead) {
+		// rule 45
+		case MP_READ: 
+			match();
+			readParameter();
+			readParameterTail();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 46 ReadParameterTail
+	private void readParameterTail() {
+		switch (lookahead) {
+		// rule 46
+		case MP_COMMA: 
+			match();
+			readParameter();
+			readParameterTail();
+			return;
+			// EmptyString Rule 47
+		default:
+			return;
+		}
+	}
+
+	// 48 ReadParameterTail
+	private void readParameter() {
+		switch (lookahead) {
+		// rule 48
+		case MP_IDENTIFIER: 
+			match();
+			variableIdentifier();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 49 WriteStatement
+	private void writeStatement() {
+		switch (lookahead) {
+		// rule 49
+		case MP_WRITE: 
+			match();
+			match(Token.MP_LPAREN);
+			writeParameter();
+			writeParameterTail();
+			match(Token.MP_RPAREN);
+			return;
+		case MP_WRITELN:
+			match();
+			match(Token.MP_LPAREN);
+			writeParameter();
+			writeParameterTail();
+			match(Token.MP_RPAREN);
+			return;
+		default:
+			error();
+		}
+	}
+	// 51 WriteParameterTail
+	private void writeParameterTail() {
+		switch (lookahead) {
+		// rule 51
+		case MP_COMMA: 
+			match();
+			writeParameter();
+			writeParameterTail();
+			return;
+			// Empty String
+		default: 
+			return;
+		}
+	}
+	// 53 WriteParameter
+	private void writeParameter() {
+		switch (lookahead) {
+		// rule 51
+		case MP_IDENTIFIER: // Not really sure what to put for the case here... ORDINAL EXPRESSION?
+			match();
+			ordinalExpression();
+			return;
+		default: 
+			error();
+		}
+	}
+	// 54 AssignmentStatement
+	private void assignmentStatement() {
+		switch (lookahead) {
+		// rule 54
+		case MP_IDENTIFIER: 
+			match();
+			variableIdentifier();
+			match(Token.MP_ASSIGN);
+			expression();
+			return;
+		case MP_FUNCTION:
+			match();
+			functionIdentifier();
+			match(Token.MP_ASSIGN);
+			expression();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 56 ifStatement
+	private void ifStatement() {
+		switch(lookahead) {
+		// rule 56
+		case MP_IF:
+			match();
+			booleanExpression();
+			match(Token.MP_THEN);
+			statement();
+			optionalElsePart();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 57 optionalElsePart
+	private void optionalElsePart() {
+		switch(lookahead) {
+		// rule 57
+		case MP_ELSE:
+			match();
+			statement();
+			return;
+		default:
+			return;
+		}
+	}
+
+	// 59 repeatStatement
+	private void repeatStatement() {
+		switch(lookahead) {
+		// rule 59
+		case MP_REPEAT:
+			match();
+			statementSequence();
+			match(Token.MP_UNTIL);
+			booleanExpression();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 60 whileStatement
+	private void whileStatement() {
+		switch(lookahead) {
+		// rule 60
+		case MP_WHILE:
+			match();
+			booleanExpression();
+			match(Token.MP_DO);
+			statement();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 61 forStatement
+	private void forStatement() {
+		switch(lookahead) {
+		// rule 56
+		case MP_FOR:
+			match();
+			controlVariable();
+			match(Token.MP_ASSIGN);
+			initialValue();
+			stepValue();
+			finalValue();
+			match(Token.MP_DO);
+			statement();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 62 controlVariable
+	private void controlVariable() {
+		switch(lookahead) {
+		// rule 59
+		case MP_IDENTIFIER:
+			match();
+			variableIdentifier();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 63 initialValue
+	private void initialValue() {
+		switch(lookahead) {
+		// Rule 63
+		case MP_IDENTIFIER: //May need changing
+			ordinalExpression();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 64 stepValue
+	private void stepValue() {
+		switch(lookahead) {
+		// Rule 63
+		case MP_TO: 
+			match();
+			return;
+		case MP_DOWNTO:
+			match();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 66 finalValue
+	private void finalValue() {
+		switch(lookahead) {
+		// Rule 63
+		case MP_IDENTIFIER: // May need fixing
+			match();
+			ordinalExpression();
+			return;
+		default:
+			error();
+		}
+	}
+	// 67 procedureStatement
+	private void procedureStatement() {
+		switch(lookahead) {
+		// rule 67
+		case MP_PROCEDURE:
+			match();
+			procedureIdentifier();
+			optionalActualParameterList();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 68 optionalActualParameterList
+	private void optionalActualParameterList() {
+		switch(lookahead) {
+		// Rule 69
+		case MP_LPAREN:
+			match();
+			actualParameter();
+			actualParameterTail();
+			match(Token.MP_RPAREN);
+			return;
+		default:
+			return;
+		}
+	}
+
+	// 70 actualParameterTail
+	private void actualParameterTail() {
+		switch(lookahead) {
+		// Rule 70
+		case MP_COMMA:
+			match();
+			actualParameter();
+			actualParameterTail();
+			match(Token.MP_RPAREN);
+			return;
+		default:
+			return;
+		}
+	}
+
+	// 72 actualParameter
+	private void actualParameter() {
+		switch(lookahead) {
+		// Rule 72
+		case MP_IDENTIFIER: // may need fixing
+			match();
+			ordinalExpression();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 73 expression
+	private void expression() {
+		switch(lookahead) {
+		// Rule 73
+		case MP_IDENTIFIER: // may need fixing
+			match(); 
+			simpleExpression();
+			optionalRelationalPart();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 74 optionalRelationalPart
+	private void optionalRelationalPart() {
+		switch(lookahead) {
+		// Rule 74
+		case MP_IDENTIFIER: // may need fixing
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		default:
+			return;
+		}
+	}
+	// 76 relationalOperator
+	private void relationalOperator() {
+		switch (lookahead) {
+		//rule 76
+		case MP_EQUAL:
+			match();
+			return;
+			//rule 77
+		case MP_LTHAN:
+			match();
+			return;
+			//rule 78
+		case MP_GTHAN:
+			match();
+			return;
+			//rule 79
+		case MP_LEQUAL:
+			match();
+			return;
+			//rule 80
+		case MP_GEQUAL:
+			match();
+			return;
+			//rule 81
+		case MP_NEQUAL:
+			match();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 82 SimpleExpression
+	private void simpleExpression() {
+		switch(lookahead) {
+		// Rule 82
+		case MP_IDENTIFIER: // may need fixing
+			match(); 
+			optionalSign();
+			term();
+			termTail();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 83 Term Tail
+	private void termTail() {
+		switch(lookahead) {
+		// Rule 83
+		case MP_IDENTIFIER: // may need fixing
+			match(); 
+			addingOperator();
+			term();
+			termTail();
+			return;
+		default:
+			return;
+		}
+	}
+
+	// 85 optionalSign
+	private void optionalSign() {
+		switch(lookahead) {
+		// Rule 85
+		case MP_PLUS: 
+			match(); 
+			return;
+		case MP_MINUS: 
+			match(); 
+			return;
+		default:
+			return;
+		}
+	}
+
+	// 88 addingOperator
+	private void addingOperator() {
+		switch(lookahead) {
+		// Rule 88
+		case MP_PLUS: 
+			match(); 
+			return;
+		case MP_MINUS: 
+			match(); 
+			return;
+		case MP_OR: 
+			match(); 
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 91 term
+	private void term() {
+		switch(lookahead) {
+		// Rule 91
+		case MP_IDENTIFIER: // may need fixing
+			match(); 
+			factor();
+			factorTail();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 92 FactorTail
+	private void factorTail() {
+		switch(lookahead) {
+		// Rule 92
+		case MP_IDENTIFIER: // may need fixing 
+			match(); 
+			multiplyingOperator();
+			factor();
+			factorTail();
+			return;
+		default:
+			return;
+		}
+	}
+
+	// 94 multiplying operator
+	private void multiplyingOperator() {
+		switch(lookahead) {
+		// Rule 94
+		case MP_TIMES: 
+			match(); 
+			return;
+		case MP_FLOAT_DIVIDE: 
+			match(); 
+			return;
+		case MP_DIV: 
+			match(); 
+			return;
+		case MP_MOD:
+			match();
+			return;
+		case MP_AND:
+			match();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 99 factor
+	private void factor() {
+		switch(lookahead) {
+		// Rule 99 (How do we handle these next 3 rules 99-102?)
+		case MP_INTEGER_LIT: 
+			match(); 
+			return;
+		case MP_FLOAT_LIT: 
+			match(); 
+			return;
+		case MP_STRING_LIT: 
+			match(); 
+			return;
+		case MP_TRUE:
+			match();
+			return;
+		case MP_FALSE:
+			match();
+			return;
+		case MP_NOT:
+			match();
+			factor();
+			return;
+		case MP_LPAREN:
+			match();
+			expression();
+			match(Token.MP_RPAREN);
+			return;
+		case MP_FUNCTION:
+			match();
+			functionIdentifier();
+			optionalActualParameterList();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 107 Program Identifier
+	private void programIdentifier() {
+		switch(lookahead) {
+		// Rule 107
+		case MP_IDENTIFIER: 
+			match(); 
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 108 variable Identifier
+	private void variableIdentifier() {
+		switch(lookahead) {
+		// Rule 108
+		case MP_VAR: 
+			match(); 
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 109 procedure Identifier
+	private void procedureIdentifier() {
+		switch(lookahead) {
+		// Rule 109
+		case MP_PROCEDURE: 
+			match(); 
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 110 function Identifier
+	private void functionIdentifier() {
+		switch(lookahead) {
+		// Rule 110
+		case MP_FUNCTION: 
+			match(); 
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 111 boolean expression
+	private void booleanExpression() {
+		switch(lookahead) {
+		// Rule 111
+		case MP_BOOLEAN: 
+			match(); 
+			expression();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 112 ordinal expression
+	private void ordinalExpression() {
+		switch(lookahead) {
+		// Rule 112
+		case MP_IDENTIFIER: 
+			match(); 
+			expression();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 113 identifierList
+	private void identifierList() {
+		switch(lookahead) {
+		// Rule 113
+		case MP_IDENTIFIER: 
+			match(); 
+			identifierTail();
+			return;
+		default:
+			error();
+		}
+	}
+
+	// 114 identifierTail
+	private void identifierTail() {
+		switch(lookahead) {
+		// Rule 113
+		case MP_COMMA: 
+			match(); 
+			match(Token.MP_IDENTIFIER);
+			identifierTail();
+			return;
+		default:
+			return;
+		}
+	}
 }
