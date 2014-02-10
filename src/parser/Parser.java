@@ -81,10 +81,26 @@ public class Parser {
 	}
 }
 	//VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
+	//lookaheads for block include: {MP_FUNCTION, MP_BEGIN, MP_PROCEDURE, MP_VAR}
 	private void block() {
 		switch (lookahead) {
 		// rule 4
 		case MP_VAR:
+			variableDeclarationPart();
+			procedureAndFunctionDeclarationPart();
+			statementPart();
+			return;
+		case MP_FUNCTION:
+			variableDeclarationPart();
+			procedureAndFunctionDeclarationPart();
+			statementPart();
+			return;
+		case MP_BEGIN:
+			variableDeclarationPart();
+			procedureAndFunctionDeclarationPart();
+			statementPart();
+			return;
+		case MP_PROCEDURE:
 			variableDeclarationPart();
 			procedureAndFunctionDeclarationPart();
 			statementPart();
@@ -334,13 +350,52 @@ public class Parser {
 			error();
 	}
 }
-	//I was unable to find the correct lookaheadToken for this method, STATEMENT has to many possible outcomes
-	
+	//Lookaheads for rule 31 include {MP_IDENTIFIER, MP_BEGIN, MP_END, MP_FOR, MP_IF, MP_READ, MP_REPEAT, MP_UNTIL, MP_WHILE, MP_WRITE, MP_WRITELN}
 	//31	31	StatementSequence => 	Statement StatementTail
 	private void statementSequence() {
 		switch (lookahead) {
 		// rule 31
-		case MP_IDENTIFIER: //dummy Token its not actually supposed to be an Identifier
+		case MP_IDENTIFIER: 
+			statement();
+			statementTail();
+			return;
+		case MP_BEGIN: 
+			statement();
+			statementTail();
+			return;
+		case MP_END: 
+			statement();
+			statementTail();
+			return;
+		case MP_FOR: 
+			statement();
+			statementTail();
+			return;
+		case MP_IF: 
+			statement();
+			statementTail();
+			return;
+		case MP_READ: 
+			statement();
+			statementTail();
+			return;
+		case MP_REPEAT: 
+			statement();
+			statementTail();
+			return;
+		case MP_UNTIL: 
+			statement();
+			statementTail();
+			return;
+		case MP_WHILE: 
+			statement();
+			statementTail();
+			return;
+		case MP_WRITE: 
+			statement();
+			statementTail();
+			return;
+		case MP_WRITELN: 
 			statement();
 			statementTail();
 			return;
@@ -383,10 +438,12 @@ public class Parser {
 		case MP_READ:
 			readStatement();
 			return;
-		//rule 37 (unsure as to which lookahead it is (either MP_WRITE or MP_WRITELN)
+		//rule 37 MP_write or MP_WRITELN
 		case MP_WRITE:
 			writeStatement();
 			return;
+		case MP_WRITELN:
+			writeStatement();
 		//rule 38
 		case MP_IDENTIFIER: //this has the same token terminal as Rule 43, (they are both Identifier idk what to do)
 			assignmentStatement();

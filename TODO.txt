@@ -45,3 +45,30 @@ Milestone 4
 Each "NonTerminal left hand side" gets its own method, 
 Each "righthandside" gets its own case in the method.
 when a rule points to empty string (epsilon) the rule in the case statement = "default: return;" and there is no error() call, an error will be found higher up the tree (if there is one at all)
+
+Milestone 5
+===================
+Finish LL(1) table:
+-finished through #70 (brad)
+-Rest almost done (andy)
+
+Write Run() method and add try / catch for error checking (Jakub)
+-fix error() method
+-Implement exception handeling for Sintax_Errors (try / catch blocks)
+-Write Error() method (the contents of it)
+
+Update parser stubs with LL(1) table rules (make sure all stubs have correct lookaheads)
+- Brad rules 1-43 
+- Jake rules 44-81 
+- Andy rules 82-115 
+
+Test parser with some files as suggested in assignment.
+
+
+
+
+
+
+
+
+
