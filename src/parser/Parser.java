@@ -6,12 +6,23 @@ import lexer.Token;
 
 public class Parser {
 	private LexemeProvider in;
+	private Lexeme lookaheadLexeme;
 	private Token lookahead;
+	private Lexeme matched;
 
 	public Parser(LexemeProvider in) {
 		this.in = in;
 		// load the first lookahead
-		lookahead = in.getNext().getToken();
+		match();
+	}
+	
+	public void run() {
+		try {
+			systemGoal();
+		}
+		catch (ParseError e) {
+			System.out.println(e);
+		}
 	}
 	
 	// Gets next lookahead item if the specified token matches the lookahead, otherwise throws error.
@@ -19,17 +30,25 @@ public class Parser {
 		if (matched == lookahead)
 			match();
 		else
-			error();
+			throw new ParseError(matched, lookaheadLexeme);
 	}
-//gets next lookahead item
+	
+	//gets next lookahead item
 	private void match() {
-		lookahead = in.getNext().getToken();
+		matched = lookaheadLexeme;
+		lookaheadLexeme = in.getNext();
+		lookahead = lookaheadLexeme.getToken();
+	}
+
+	// Error expecting a single token
+	private void error(Token expected) {
+		throw new ParseError(expected, lookaheadLexeme);
 	}
 	
-	private void error() {
-		throw new RuntimeException("ERROOORRRRR");
+	// Error with a custom message
+	private void error(String message) {
+		throw new ParseError(message, lookaheadLexeme);
 	}
-	
 	
 	/*
 	 * The lookaheads do not need to be correct at this time, so the gutz of the if statements can just be set to if(TRUE) ... 
@@ -48,7 +67,7 @@ public class Parser {
 			return;
 		//error case
 		default:
-			error();
+			error("Tried to find the start of the program");
 	}
 }
 	
@@ -64,7 +83,7 @@ public class Parser {
 			return;
 		//error case
 		default:
-			error();
+			error(Token.MP_PROGRAM);
 	}
 }
 	//"program" ProgramIdentifier
@@ -77,7 +96,7 @@ public class Parser {
 			return;
 		//error case
 		default:
-			error();
+			error(Token.MP_PROGRAM);
 	}
 }
 	//VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
@@ -107,7 +126,7 @@ public class Parser {
 			return;
 		//error case
 		default:
-			error();
+			error("Needed to find a block");
 	}
 }
 	//5	5	VariableDeclarationPart 	=>	"var" VariableDeclaration ";" VariableDeclarationTail
@@ -150,7 +169,7 @@ public class Parser {
 			return;
 		//error case
 		default:
-			error();
+			
 	}
 }
 	private void type() {
@@ -173,7 +192,7 @@ public class Parser {
 			return;
 		// error call
 		default:
-			error();
+			error("Needed to find a type declaration");
 		}
 	}
 	
@@ -208,7 +227,7 @@ public class Parser {
 			match(Token.MP_SCOLON);
 			return;
 		default:
-			error();
+			error("Needed to find a procedure decleration");
 	}
 }
 	//18	18	FunctionDeclaration    => 	FunctionHeading ";" Block ";"
@@ -222,7 +241,7 @@ public class Parser {
 			match(Token.MP_SCOLON);
 			return;
 		default:
-			error();
+			error(Token.MP_FUNCTION);
 	}
 }
 	//19	19	ProcedureHeading     => 	"procedure" procedureIdentifier OptionalFormalParameterList
@@ -235,7 +254,7 @@ public class Parser {
 			optionalFormalParameterList();
 			return;
 		default:
-			error();
+			error(Token.MP_PROCEDURE);
 	}
 }
 	//20	20	FunctionHeading     => 	"function" functionIdentifier OptionalFormalParameterList Type
@@ -249,7 +268,7 @@ public class Parser {
 			type();
 			return;
 		default:
-			error();
+			error(Token.MP_FUNCTION);
 	}
 }
 	//21	21	OptionalFormalParameterList =>	"(" FormalParameterSection FormalParameterSectionTail ")"
@@ -296,7 +315,7 @@ public class Parser {
 			variableParameterSection();
 			return;
 		default:
-			error();
+			error("Expected an identifier or variable");
 	}
 }
 	//27	27	ValueParameterSection   =>	IdentifierList ":" Type
@@ -309,7 +328,7 @@ public class Parser {
 			type();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 	}
 }
 	//28	28	VariableParameterSection  => 	"var" IdentifierList ":" Type            
@@ -323,7 +342,7 @@ public class Parser {
 			type();
 			return;
 		default:
-			error();
+			error(Token.MP_VAR);
 	}
 }
 	//29	29	StatementPart  => 	CompoundStatement   
@@ -334,7 +353,7 @@ public class Parser {
 			compoundStatement();
 			return;
 		default:
-			error();
+			error(Token.MP_BEGIN);
 	}
 }
 	//30	30	CompoundStatement => 	"begin" StatementSequence "end"
@@ -347,7 +366,7 @@ public class Parser {
 			match(Token.MP_END);
 			return;
 		default:
-			error();
+			error(Token.MP_BEGIN);
 	}
 }
 	//Lookaheads for rule 31 include {MP_IDENTIFIER, MP_BEGIN, MP_END, MP_FOR, MP_IF, MP_READ, MP_REPEAT, MP_UNTIL, MP_WHILE, MP_WRITE, MP_WRITELN}
@@ -400,7 +419,7 @@ public class Parser {
 			statementTail();
 			return;
 		default:
-			error();
+			error("Expected the beginning of an statement");
 	}
 }
 	//32	32	StatementTail  => 	";" Statement StatementTail
@@ -492,7 +511,7 @@ public class Parser {
 			readParameterTail();
 			return;
 		default:
-			error();
+			error(Token.MP_READ);
 		}
 	}
 
@@ -520,8 +539,7 @@ public class Parser {
 			variableIdentifier();
 			return;
 		default:
-			error();
-		}
+			error(Token.MP_IDENTIFIER);		}
 	}
 
 	// 49 WriteStatement
@@ -543,7 +561,7 @@ public class Parser {
 			match(Token.MP_RPAREN);
 			return;
 		default:
-			error();
+			error("Expected write statement");
 		}
 	}
 	// 51 WriteParameterTail
@@ -569,7 +587,7 @@ public class Parser {
 			ordinalExpression();
 			return;
 		default: 
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 	// 54 AssignmentStatement
@@ -589,7 +607,7 @@ public class Parser {
 			expression();
 			return;
 		default:
-			error();
+			error("Expected the start of an assignment statement");
 		}
 	}
 
@@ -605,7 +623,7 @@ public class Parser {
 			optionalElsePart();
 			return;
 		default:
-			error();
+			error(Token.MP_IF);
 		}
 	}
 
@@ -633,7 +651,7 @@ public class Parser {
 			booleanExpression();
 			return;
 		default:
-			error();
+			error(Token.MP_REPEAT);
 		}
 	}
 
@@ -648,7 +666,7 @@ public class Parser {
 			statement();
 			return;
 		default:
-			error();
+			error(Token.MP_WHILE);
 		}
 	}
 
@@ -667,7 +685,7 @@ public class Parser {
 			statement();
 			return;
 		default:
-			error();
+			error(Token.MP_FOR);
 		}
 	}
 
@@ -680,7 +698,7 @@ public class Parser {
 			variableIdentifier();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -692,7 +710,7 @@ public class Parser {
 			ordinalExpression();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -707,7 +725,7 @@ public class Parser {
 			match();
 			return;
 		default:
-			error();
+			error("Expected step value (up to/ down to)");
 		}
 	}
 
@@ -720,7 +738,7 @@ public class Parser {
 			ordinalExpression();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 	// 67 procedureStatement
@@ -733,7 +751,7 @@ public class Parser {
 			optionalActualParameterList();
 			return;
 		default:
-			error();
+			error(Token.MP_PROCEDURE);
 		}
 	}
 
@@ -776,7 +794,7 @@ public class Parser {
 			ordinalExpression();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -790,7 +808,7 @@ public class Parser {
 			optionalRelationalPart();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -835,7 +853,7 @@ public class Parser {
 			match();
 			return;
 		default:
-			error();
+			error("Needed to find a relational operator");
 		}
 	}
 
@@ -850,7 +868,7 @@ public class Parser {
 			termTail();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -865,7 +883,7 @@ public class Parser {
 			termTail();
 			return;
 		default:
-			return;
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -898,7 +916,7 @@ public class Parser {
 			match(); 
 			return;
 		default:
-			error();
+			error("Expected adding operator");
 		}
 	}
 
@@ -912,7 +930,7 @@ public class Parser {
 			factorTail();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -951,7 +969,7 @@ public class Parser {
 			match();
 			return;
 		default:
-			error();
+			error("Expected multiplying operator");
 		}
 	}
 
@@ -989,7 +1007,7 @@ public class Parser {
 			optionalActualParameterList();
 			return;
 		default:
-			error();
+			error("Expected factor");
 		}
 	}
 
@@ -1001,7 +1019,7 @@ public class Parser {
 			match(); 
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -1013,7 +1031,7 @@ public class Parser {
 			match(); 
 			return;
 		default:
-			error();
+			error(Token.MP_VAR);
 		}
 	}
 
@@ -1025,7 +1043,7 @@ public class Parser {
 			match(); 
 			return;
 		default:
-			error();
+			error(Token.MP_PROCEDURE);
 		}
 	}
 
@@ -1037,7 +1055,7 @@ public class Parser {
 			match(); 
 			return;
 		default:
-			error();
+			error(Token.MP_FUNCTION);
 		}
 	}
 
@@ -1050,7 +1068,7 @@ public class Parser {
 			expression();
 			return;
 		default:
-			error();
+			error(Token.MP_BOOLEAN);
 		}
 	}
 
@@ -1063,7 +1081,7 @@ public class Parser {
 			expression();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
@@ -1076,7 +1094,7 @@ public class Parser {
 			identifierTail();
 			return;
 		default:
-			error();
+			error(Token.MP_IDENTIFIER);
 		}
 	}
 
