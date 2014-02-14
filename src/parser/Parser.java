@@ -30,7 +30,7 @@ public class Parser {
 		if (matched == lookahead)
 			match();
 		else
-			throw new ParseError(matched, lookaheadLexeme);
+			error(matched);
 	}
 	
 	//gets next lookahead item

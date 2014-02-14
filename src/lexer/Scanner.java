@@ -271,8 +271,8 @@ public class Scanner implements LexemeProvider {
 			case '=': stream.mark(Token.MP_ASSIGN); break;
 			} break;
 		case '/': stream.mark(Token.MP_FLOAT_DIVIDE); break;
-		case '(': stream.mark(Token.MP_RPAREN); break;
-		case ')': stream.mark(Token.MP_LPAREN); break;
+		case '(': stream.mark(Token.MP_LPAREN); break;
+		case ')': stream.mark(Token.MP_RPAREN); break;
 		case '=': stream.mark(Token.MP_EQUAL); break;
 		case '+': stream.mark(Token.MP_PLUS); break;
 		case '-': stream.mark(Token.MP_MINUS); break;
