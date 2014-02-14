@@ -535,6 +535,7 @@ public class Parser {
 			writeParameterTail();
 			match(Token.MP_RPAREN);
 			return;
+		// rule 50
 		case MP_WRITELN:
 			match();
 			match(Token.MP_LPAREN);
@@ -546,6 +547,7 @@ public class Parser {
 			error();
 		}
 	}
+	
 	// 51 WriteParameterTail
 	private void writeParameterTail() {
 		switch (lookahead) {
@@ -555,7 +557,12 @@ public class Parser {
 			writeParameter();
 			writeParameterTail();
 			return;
-			// Empty String
+			// Rule 52 empty string
+		case MP_RPAREN:
+			match();
+			writeParameter();
+			writeParameterTail();
+			return;
 		default: 
 			return;
 		}
@@ -563,8 +570,44 @@ public class Parser {
 	// 53 WriteParameter
 	private void writeParameter() {
 		switch (lookahead) {
-		// rule 51
-		case MP_IDENTIFIER: // Not really sure what to put for the case here... ORDINAL EXPRESSION?
+		// rule 53
+		case MP_IDENTIFIER: 
+			match();
+			ordinalExpression();
+			return;
+		case MP_PLUS:
+			match();
+			ordinalExpression();
+			return;
+		case MP_FALSE:
+			match();
+			ordinalExpression();
+			return;
+		case MP_NOT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_TRUE:
+			match();
+			ordinalExpression();
+			return;
+		case MP_INTEGER_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_FLOAT_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_STRING_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_LPAREN:
+			match();
+			ordinalExpression();
+			return;
+		case MP_MINUS:
 			match();
 			ordinalExpression();
 			return;
@@ -688,7 +731,44 @@ public class Parser {
 	private void initialValue() {
 		switch(lookahead) {
 		// Rule 63
-		case MP_IDENTIFIER: //May need changing
+		case MP_IDENTIFIER:
+			match();
+			ordinalExpression();
+			return;
+		case MP_FALSE: 
+			match();
+			ordinalExpression();
+			return;
+		case MP_NOT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_TRUE:
+			match();
+			ordinalExpression();
+			return;
+		case MP_INTEGER_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_FLOAT_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_STRING_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_LPAREN:
+			match();
+			ordinalExpression();
+			return;
+		case MP_MINUS:
+			match();
+			ordinalExpression();
+			return;
+		case MP_PLUS:
+			match();
 			ordinalExpression();
 			return;
 		default:
@@ -714,8 +794,44 @@ public class Parser {
 	// 66 finalValue
 	private void finalValue() {
 		switch(lookahead) {
-		// Rule 63
-		case MP_IDENTIFIER: // May need fixing
+		// Rule 66
+		case MP_IDENTIFIER: 
+			match();
+			ordinalExpression();
+			return;
+		case MP_FALSE: 
+			match();
+			ordinalExpression();
+			return;
+		case MP_NOT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_TRUE:
+			match();
+			ordinalExpression();
+			return;
+		case MP_INTEGER_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_FLOAT_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_STRING_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_LPAREN:
+			match();
+			ordinalExpression();
+			return;
+		case MP_MINUS:
+			match();
+			ordinalExpression();
+			return;
+		case MP_PLUS:
 			match();
 			ordinalExpression();
 			return;
@@ -775,6 +891,42 @@ public class Parser {
 			match();
 			ordinalExpression();
 			return;
+		case MP_FALSE: 
+			match();
+			ordinalExpression();
+			return;
+		case MP_NOT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_TRUE:
+			match();
+			ordinalExpression();
+			return;
+		case MP_INTEGER_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_FLOAT_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_STRING_LIT:
+			match();
+			ordinalExpression();
+			return;
+		case MP_LPAREN:
+			match();
+			ordinalExpression();
+			return;
+		case MP_MINUS:
+			match();
+			ordinalExpression();
+			return;
+		case MP_PLUS:
+			match();
+			ordinalExpression();
+			return;
 		default:
 			error();
 		}
@@ -784,7 +936,17 @@ public class Parser {
 	private void expression() {
 		switch(lookahead) {
 		// Rule 73
-		case MP_IDENTIFIER: // may need fixing
+		case MP_IDENTIFIER: 
+			match(); 
+			simpleExpression();
+			optionalRelationalPart();
+			return;
+		case MP_MINUS:
+			match(); 
+			simpleExpression();
+			optionalRelationalPart();
+			return;
+		case MP_PLUS:
 			match(); 
 			simpleExpression();
 			optionalRelationalPart();
@@ -798,7 +960,42 @@ public class Parser {
 	private void optionalRelationalPart() {
 		switch(lookahead) {
 		// Rule 74
-		case MP_IDENTIFIER: // may need fixing
+		case MP_IDENTIFIER:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_EQUAL:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_GEQUAL:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_GTHAN:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_LEQUAL:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_LTHAN:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_NEQUAL:
+			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_RPAREN:
 			match(); 
 			relationalOperator();
 			simpleExpression();
@@ -843,7 +1040,13 @@ public class Parser {
 	private void simpleExpression() {
 		switch(lookahead) {
 		// Rule 82
-		case MP_IDENTIFIER: // may need fixing
+		case MP_MINUS:
+			match(); 
+			optionalSign();
+			term();
+			termTail();
+			return;
+		case MP_PLUS:
 			match(); 
 			optionalSign();
 			term();
@@ -858,7 +1061,19 @@ public class Parser {
 	private void termTail() {
 		switch(lookahead) {
 		// Rule 83
-		case MP_IDENTIFIER: // may need fixing
+		case MP_OR: 
+			match(); 
+			addingOperator();
+			term();
+			termTail();
+			return;
+		case MP_MINUS:
+			match(); 
+			addingOperator();
+			term();
+			termTail();
+			return;
+		case MP_PLUS:
 			match(); 
 			addingOperator();
 			term();
@@ -906,7 +1121,42 @@ public class Parser {
 	private void term() {
 		switch(lookahead) {
 		// Rule 91
-		case MP_IDENTIFIER: // may need fixing
+		case MP_FALSE:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_NOT:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_TRUE:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_IDENTIFIER:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_INTEGER_LIT:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_FLOAT_LIT:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_STRING_LIT:
+			match(); 
+			factor();
+			factorTail();
+			return;
+		case MP_LPAREN:
 			match(); 
 			factor();
 			factorTail();
@@ -920,7 +1170,31 @@ public class Parser {
 	private void factorTail() {
 		switch(lookahead) {
 		// Rule 92
-		case MP_IDENTIFIER: // may need fixing 
+		case MP_AND:  
+			match(); 
+			multiplyingOperator();
+			factor();
+			factorTail();
+			return;
+		case MP_DIV:
+			match(); 
+			multiplyingOperator();
+			factor();
+			factorTail();
+			return;
+		case MP_MOD:
+			match(); 
+			multiplyingOperator();
+			factor();
+			factorTail();
+			return;
+		case MP_FLOAT_DIVIDE:
+			match(); 
+			multiplyingOperator();
+			factor();
+			factorTail();
+			return;
+		case MP_TIMES:
 			match(); 
 			multiplyingOperator();
 			factor();
@@ -962,28 +1236,35 @@ public class Parser {
 		case MP_INTEGER_LIT: 
 			match(); 
 			return;
+		// Rule 100
 		case MP_FLOAT_LIT: 
 			match(); 
 			return;
+		// Rule 101
 		case MP_STRING_LIT: 
 			match(); 
 			return;
+		// Rule 102
 		case MP_TRUE:
 			match();
 			return;
+		// Rule 103
 		case MP_FALSE:
 			match();
 			return;
+		// Rule 104
 		case MP_NOT:
 			match();
 			factor();
 			return;
+		// Rule 105
 		case MP_LPAREN:
 			match();
 			expression();
 			match(Token.MP_RPAREN);
 			return;
-		case MP_FUNCTION:
+		// Rule 106
+		case MP_IDENTIFIER:
 			match();
 			functionIdentifier();
 			optionalActualParameterList();
@@ -1045,8 +1326,13 @@ public class Parser {
 	private void booleanExpression() {
 		switch(lookahead) {
 		// Rule 111
-		case MP_BOOLEAN: 
+		case MP_MINUS: 
 			match(); 
+			expression();
+			return;
+		// Rule 111
+		case MP_PLUS:
+			match();
 			expression();
 			return;
 		default:
@@ -1058,8 +1344,13 @@ public class Parser {
 	private void ordinalExpression() {
 		switch(lookahead) {
 		// Rule 112
-		case MP_IDENTIFIER: 
+		case MP_MINUS: 
 			match(); 
+			expression();
+			return;
+		// Rule 111
+		case MP_PLUS:
+			match();
 			expression();
 			return;
 		default:
@@ -1085,6 +1376,11 @@ public class Parser {
 		switch(lookahead) {
 		// Rule 113
 		case MP_COMMA: 
+			match(); 
+			match(Token.MP_IDENTIFIER);
+			identifierTail();
+			return;
+		case MP_IDENTIFIER:
 			match(); 
 			match(Token.MP_IDENTIFIER);
 			identifierTail();

@@ -50,7 +50,7 @@ Milestone 5
 ===================
 Finish LL(1) table:
 -finished through #70 (brad)
--Rest almost done (andy)
+-Rest almost done (andy) (Done)
 
 Write Run() method and add try / catch for error checking (Jakub)
 -fix error() method
