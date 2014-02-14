@@ -7,6 +7,7 @@ package main;
 import java.io.*;
 import java.nio.file.*;
 
+import parser.Parser;
 import lexer.*;
 
 public class mp {
@@ -57,11 +58,9 @@ public class mp {
 		if (verbose)
 			scanner = new LexemePrinter(scanner, stdout);
 		
-		// Pull all lexemes
-		Lexeme lexeme;
-		do {
-			lexeme = scanner.getNext();
-		} while (lexeme.getToken() != Token.MP_EOF);
+		// Run the parser
+		Parser parser = new Parser(scanner);
+		parser.run();
 		
 		// Close output streams
 		stdout.close();
