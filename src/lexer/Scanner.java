@@ -7,11 +7,9 @@ import java.util.HashMap;
 public class Scanner implements LexemeProvider {
 	private ScannerStream stream;
 	private static final HashMap<String, Token> reservedWords = initReservedWords();
-
 	Scanner(byte[] input) {
 		stream = new ScannerStream(input);
 	}
-
 	@Override
 	public Lexeme getNext() {
 		// Clear whitespace
@@ -28,7 +26,6 @@ public class Scanner implements LexemeProvider {
 				break;
 			}
 		}
-
 		// Start recording lexeme
 		stream.lexemeStart();
 		// Select fsa to use by first character
@@ -44,7 +41,6 @@ public class Scanner implements LexemeProvider {
 		else
 			return scanSymbol();
 	}
-
 	/*
 	 * Determines whether there is a run-on comment and if so, the token
 	 * is marked as such and an error message is done.

@@ -6,18 +6,15 @@ import java.util.Iterator;
 class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	// File being scanned
 	private byte[] input;
-
 	// Current location in the file
 	private int row = 1;
 	private int col = 0;
 	private int index = 0;
-
 	// Remembers a row or col to backtrack to
 	private int marked_row = 0;
 	private int marked_col = 0;
 	private int marked_index = 0;
 	private boolean isMarked = false;
-
 	// The lexeme that is currently being scanned at any given time
 	private Lexeme output;
 	private int lexemeStart;
@@ -25,7 +22,6 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 	public ScannerStream(byte[] in) {
 		this.input = in;
 	}
-
 	// Starts constructing a new lexeme
 	public void lexemeStart() {
 		output = new Lexeme();
@@ -35,7 +31,6 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 		// resets isMarked to false at the begining of each new Lexem
 		isMarked = false;
 	}
-
 	// Saves a current valid token state
 	// Warning: cannot be called while no lexeme is started
 	// also sets isMarked to true signifying that an accept state has been
@@ -47,7 +42,6 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 		output.token = label;
 		isMarked = true;
 	}
-
 	// Backtracks to a previously marked state, and emits the lexeme at that
 	// location
 	// checks to see if the FSA reached a accept state prior to emit() if yes,
@@ -71,19 +65,15 @@ class ScannerStream implements Iterator<Byte>, Iterable<Byte> {
 			return output;
 		}
 	}
-
 	// Check the current character without advancing
 	public byte peek() {
 		return input[index];
 	}
-	
 	public boolean isFinished() {
 		return index == input.length;
 	}
-
 	// Iterator interface to allow you to use this with for-each syntax
 	// http://stackoverflow.com/questions/85190/how-does-the-java-for-each-loop-work
-
 	// Test for end of file
 	@Override
 	public boolean hasNext() {
