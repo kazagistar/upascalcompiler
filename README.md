@@ -11,5 +11,6 @@ The compiler takes one parameter by default, which is the file to compile. To se
 
 Example:
 	
-	java -jar group3scanner.jar -v -t tokenfile inputfile.p
+	java -jar group3scanner.jar -v -t tokenfile test/hello.p
 
+(order matters)

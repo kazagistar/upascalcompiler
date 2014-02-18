@@ -51,11 +51,11 @@ public class mp {
 
 		// Set up a sequence of classes to process the lexemes
 		scanner = new LexemeFilter(scanner, Token.MP_COMMENT);
-		scanner = new LexemeErrorPrinter(scanner, stdout);
 		if (tokenWriter != null)
 			scanner = new LexemePrinter(scanner, tokenWriter);
 		if (verbose)
 			scanner = new LexemePrinter(scanner, stdout);
+		scanner = new LexemeErrorPrinter(scanner, stdout);
 		
 		// Pull all lexemes
 		Lexeme lexeme;
