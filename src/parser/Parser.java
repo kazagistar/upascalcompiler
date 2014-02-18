@@ -954,11 +954,6 @@ public class Parser {
 	private void expression() {
 		switch(lookahead) {
 		// Rule 73
-		case MP_IDENTIFIER: 
-			match(); 
-			simpleExpression();
-			optionalRelationalPart();
-			return;
 		case MP_MINUS:
 			match(); 
 			simpleExpression();
@@ -970,7 +965,7 @@ public class Parser {
 			optionalRelationalPart();
 			return;
 		default:
-			error(Token.MP_IDENTIFIER);
+			return;
 		}
 	}
 
@@ -979,42 +974,82 @@ public class Parser {
 		switch(lookahead) {
 		// Rule 74
 		case MP_IDENTIFIER:
-			match(); 
 			relationalOperator();
 			simpleExpression();
 			return;
 		case MP_EQUAL:
-			match(); 
 			relationalOperator();
 			simpleExpression();
 			return;
 		case MP_GEQUAL:
-			match(); 
 			relationalOperator();
 			simpleExpression();
 			return;
 		case MP_GTHAN:
-			match(); 
 			relationalOperator();
 			simpleExpression();
 			return;
 		case MP_LEQUAL:
-			match(); 
 			relationalOperator();
 			simpleExpression();
 			return;
 		case MP_LTHAN:
-			match(); 
 			relationalOperator();
 			simpleExpression();
 			return;
-		case MP_NEQUAL:
-			match(); 
+		case MP_NEQUAL: 
 			relationalOperator();
 			simpleExpression();
 			return;
 		case MP_RPAREN:
-			match(); 
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_LPAREN:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_STRING_LIT:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_AND:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_DIV:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_FALSE:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_TRUE:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_INTEGER:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_MOD:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_NOT:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_OR:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_STRING:
+			relationalOperator();
+			simpleExpression();
+			return;
+		case MP_FLOAT_DIVIDE:
 			relationalOperator();
 			simpleExpression();
 			return;
