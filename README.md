@@ -11,6 +11,7 @@ The compiler takes one parameter by default, which is the file to compile. To se
 
 Example:
 	
-	java -jar group3scanner.jar -v -t tokenfile test/hello.p
+	java -jar group3scanner.jar -v -t tokenfile test/.p
 
 (order matters)
+$\Tree [.S a [.NP {\bf b} c ] d ]$
