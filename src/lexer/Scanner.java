@@ -313,6 +313,7 @@ public class Scanner implements LexemeProvider {
 		reserved.put("then", Token.MP_THEN);
 		reserved.put("true", Token.MP_TRUE);
 		reserved.put("to", Token.MP_TO);
+		reserved.put("type", Token.MP_TYPE);
 		reserved.put("until", Token.MP_UNTIL);
 		reserved.put("var", Token.MP_VAR);
 		reserved.put("while", Token.MP_WHILE);
