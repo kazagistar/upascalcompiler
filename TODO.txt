@@ -64,6 +64,17 @@ Update parser stubs with LL(1) table rules (make sure all stubs have correct loo
 
 Test parser with some files as suggested in assignment.
 
+MileStone 7 
+=====================
+Build Symbol Table ADT
+-Create Type  abstract class (and subclasses) Jake
+
+-Create Scope class and methods Brad  (should be done, i think my logic is sound, if things are broken let me know!)
+
+- If able, fix parser with fixed LL(1) table (if able)
+
+- other stuff (TBA)
+
 
 
 
