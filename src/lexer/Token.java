@@ -28,6 +28,7 @@ public enum Token {
 	MP_THEN,
 	MP_TRUE, //
 	MP_TO,
+	MP_TYPE,
 	MP_UNTIL,
 	MP_VAR,
 	MP_WHILE,
