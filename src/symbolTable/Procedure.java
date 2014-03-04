@@ -27,5 +27,10 @@ public class Procedure implements Typeclass {
 		Procedure cast = (Procedure) other;
 		return this.returned == cast.returned && Arrays.equals(this.params, cast.params);
 	}
+	
+	@Override
+	public int getSize(){
+		return 0;
+	}
 
 }

@@ -23,5 +23,10 @@ public class Variable implements Typeclass {
 		Variable cast = (Variable) other;
 		return this.type == cast.type;
 	}
+	
+	@Override
+	public int getSize(){
+		return 1;
+	}
 
 }

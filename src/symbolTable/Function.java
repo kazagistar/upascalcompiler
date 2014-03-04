@@ -25,4 +25,9 @@ public class Function implements Typeclass {
 		Function cast = (Function) other;
 		return Arrays.equals(this.params, cast.params);
 	}
+	
+	@Override
+	public int getSize(){
+		return 0;
+	}
 }

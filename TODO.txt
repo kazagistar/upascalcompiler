@@ -76,6 +76,14 @@ Build Symbol Table ADT
 - other stuff (TBA)
 
 
+MileStone 8
+========================
+-Finish LL(1) table / fix parser
+- add action symbols to parser
+- test parser and symbol table
+
+
+
 
 
 
