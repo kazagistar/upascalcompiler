@@ -9,31 +9,32 @@ public class Parser {
 	private Lexeme lookaheadLexeme;
 	private Token lookahead;
 	private Lexeme matched;
+	private int treeDepth = 0;
 
 	public Parser(LexemeProvider in) {
 		this.in = in;
 		// load the first lookahead
 		match();
 	}
-	
+
 	public void run() {
 		try {
 			systemGoal();
-		}
-		catch (ParseError e) {
+		} catch (ParseError e) {
 			System.out.println(e);
 		}
 	}
-	
-	// Gets next lookahead item if the specified token matches the lookahead, otherwise throws error.
+
+	// Gets next lookahead item if the specified token matches the lookahead,
+	// otherwise throws error.
 	private void match(Token matched) {
 		if (matched == lookahead)
 			match();
 		else
 			error(matched);
 	}
-	
-	//gets next lookahead item
+
+	// gets next lookahead item
 	private void match() {
 		matched = lookaheadLexeme;
 		lookaheadLexeme = in.getNext();
@@ -44,49 +45,56 @@ public class Parser {
 	private void error(Token expected) {
 		throw new ParseError(expected, lookaheadLexeme);
 	}
-	
+
 	// Error with a custom message
 	private void error(String message) {
 		throw new ParseError(message, lookaheadLexeme);
 	}
-	
+
 	/*
-	 * The lookaheads do not need to be correct at this time, so the gutz of the if statements can just be set to if(TRUE) ... 
-	 * this way it will still compile, and we can set the lookaheads later on.
+	 * The lookaheads do not need to be correct at this time, so the gutz of the
+	 * if statements can just be set to if(TRUE) ... this way it will still
+	 * compile, and we can set the lookaheads later on.
 	 * 
-	 * At this point all we want is to have the stuff that is inside the case statements. The following is an example of how we will make all the rules / stubs.
+	 * At this point all we want is to have the stuff that is inside the case
+	 * statements. The following is an example of how we will make all the rules
+	 * / stubs.
 	 */
-	
-	
+
 	private void systemGoal() {
 		// rule 1
 		program();
 		match(Token.MP_EOF);
-}
-	
-	//ProgramHeading ";" Block "."
+	}
+
+	// ProgramHeading ";" Block "."
 	private void program() {
 		// rule 2
 		programHeading();
 		match(Token.MP_SCOLON);
 		block();
 		match(Token.MP_PERIOD);
-}
-	//"program" ProgramIdentifier
+	}
+
+	// "program" ProgramIdentifier
 	private void programHeading() {
 		// rule 3
 		match(Token.MP_PROGRAM);
 		programIdentifier();
-}
-	//VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
-	//lookaheads for block include: {MP_FUNCTION, MP_BEGIN, MP_PROCEDURE, MP_VAR}
+	}
+
+	// VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
+	// lookaheads for block include: {MP_FUNCTION, MP_BEGIN, MP_PROCEDURE,
+	// MP_VAR}
 	private void block() {
 		// rule 4
 		variableDeclarationPart();
 		procedureAndFunctionDeclarationPart();
 		statementPart();
-}
-	//5	5	VariableDeclarationPart 	=>	"var" VariableDeclaration ";" VariableDeclarationTail
+	}
+
+	// 5 5 VariableDeclarationPart => "var" VariableDeclaration ";"
+	// VariableDeclarationTail
 	private void variableDeclarationPart() {
 		switch (lookahead) {
 		// rule 5
@@ -96,11 +104,12 @@ public class Parser {
 			match(Token.MP_SCOLON);
 			variableDeclarationTail();
 			return;
-		//rule 6 (empty string)
+			// rule 6 (empty string)
 		default:
 			return;
+		}
 	}
-}
+
 	private void variableDeclarationTail() {
 		switch (lookahead) {
 		// rule 7
@@ -114,14 +123,15 @@ public class Parser {
 			return;
 		}
 	}
-	
-	//9	9	VariableDeclaration =>	Identifierlist ":" Type
+
+	// 9 9 VariableDeclaration => Identifierlist ":" Type
 	private void variableDeclaration() {
 		// rule 9
 		identifierList();
 		match(Token.MP_COLON);
 		type();
-}
+	}
+
 	private void type() {
 		switch (lookahead) {
 		// rule 10
@@ -140,12 +150,12 @@ public class Parser {
 		case MP_BOOLEAN:
 			match();
 			return;
-		// error call
+			// error call
 		default:
 			error("Needed to find a type declaration");
 		}
 	}
-	
+
 	private void procedureAndFunctionDeclarationPart() {
 		switch (lookahead) {
 		// rule 14
@@ -153,43 +163,48 @@ public class Parser {
 			procedureDeclaration();
 			procedureAndFunctionDeclarationPart();
 			return;
-		//rule 15
+			// rule 15
 		case MP_FUNCTION:
 			functionDeclaration();
 			procedureAndFunctionDeclarationPart();
 			return;
-		//rule 16 (empty string)
+			// rule 16 (empty string)
 		default:
 			return;
+		}
 	}
-}
+
 	private void procedureDeclaration() {
 		// rule 17
-			procedureHeading();
-			match(Token.MP_SCOLON);
-			block();
-			match(Token.MP_SCOLON);
-}
+		procedureHeading();
+		match(Token.MP_SCOLON);
+		block();
+		match(Token.MP_SCOLON);
+	}
+
 	private void functionDeclaration() {
 		// rule 18
-			functionHeading();
-			match(Token.MP_SCOLON);
-			block();
-			match(Token.MP_SCOLON);
-}
+		functionHeading();
+		match(Token.MP_SCOLON);
+		block();
+		match(Token.MP_SCOLON);
+	}
+
 	private void procedureHeading() {
 		// rule 19
-			match(Token.MP_PROCEDURE);
-			procedureIdentifier();
-			optionalFormalParameterList();
+		match(Token.MP_PROCEDURE);
+		procedureIdentifier();
+		optionalFormalParameterList();
 	}
+
 	private void functionHeading() {
 		// rule 20
-			match(Token.MP_FUNCTION);
-			functionIdentifier();
-			optionalFormalParameterList();
-			type();
-}           
+		match(Token.MP_FUNCTION);
+		functionIdentifier();
+		optionalFormalParameterList();
+		type();
+	}
+
 	private void optionalFormalParameterList() {
 		switch (lookahead) {
 		// rule 21
@@ -199,12 +214,12 @@ public class Parser {
 			formalParameterSectionTail();
 			match(Token.MP_RPAREN);
 			return;
-		//rule 22 (empty String)
+			// rule 22 (empty String)
 		default:
 			return;
+		}
 	}
-}
-	
+
 	private void formalParameterSectionTail() {
 		switch (lookahead) {
 		// rule 23
@@ -213,124 +228,135 @@ public class Parser {
 			formalParameterSection();
 			formalParameterSectionTail();
 			return;
-		//rule 24 (empty String)
+			// rule 24 (empty String)
 		default:
 			return;
+		}
 	}
-}
+
 	private void formalParameterSection() {
 		switch (lookahead) {
 		// rule 25
 		case MP_IDENTIFIER:
 			valueParameterSection();
 			return;
-		//rule 26
+			// rule 26
 		case MP_VAR:
 			variableParameterSection();
 			return;
 		default:
 			error("Expected an identifier or variable");
+		}
 	}
-}
+
 	private void valueParameterSection() {
 		// rule 27
 		identifierList();
 		match(Token.MP_COLON);
 		type();
-}
+	}
+
 	private void variableParameterSection() {
-			match(Token.MP_VAR);
-			identifierList();
-			match(Token.MP_COLON);
-			type();
-}
+		match(Token.MP_VAR);
+		identifierList();
+		match(Token.MP_COLON);
+		type();
+	}
+
 	private void statementPart() {
-			compoundStatement();
-}
+		compoundStatement();
+	}
+
 	private void compoundStatement() {
 		// rule 30
-			match(Token.MP_BEGIN);
-			statementSequence();
-			match(Token.MP_END);
-}
+		match(Token.MP_BEGIN);
+		statementSequence();
+		match(Token.MP_END);
+	}
+
 	private void statementSequence() {
-			statement();
-			statementTail();
-}
+		statement();
+		statementTail();
+	}
+
 	private void statementTail() {
 		switch (lookahead) {
 		// rule 32
-		case MP_SCOLON: 
+		case MP_SCOLON:
 			match();
 			statement();
 			statementTail();
 			return;
-		//rule 33 (empty string / epsilon)
+			// rule 33 (empty string / epsilon)
 		default:
 			return;
+		}
 	}
-}
+
 	private void statement() {
 		switch (lookahead) {
-		//rule 35
+		// rule 35
 		case MP_BEGIN:
 			compoundStatement();
 			return;
-		//rule 36
+			// rule 36
 		case MP_READ:
 			readStatement();
 			return;
-		//rule 37 MP_write or MP_WRITELN
+			// rule 37 MP_write or MP_WRITELN
 		case MP_WRITE:
 		case MP_WRITELN:
 			writeStatement();
 			return;
-		//rule 38/43
-		// these two rules have the same lookahead token, but differ by symbol table context
+			// rule 38/43
+			// these two rules have the same lookahead token, but differ by
+			// symbol table context
 		case MP_IDENTIFIER:
 			// if the identifier is a function
 			assignmentStatement();
 			// elseif the identifier is a procedure
 			procedureStatement();
 			return;
-		//rule 39
+			// rule 39
 		case MP_IF:
 			ifStatement();
 			return;
-		//rule 40
+			// rule 40
 		case MP_WHILE:
 			whileStatement();
 			return;
-		//rule 41
+			// rule 41
 		case MP_REPEAT:
 			repeatStatement();
 			return;
-		//rule 42
+			// rule 42
 		case MP_FOR:
 			forStatement();
 			return;
-		// rule 34 (empty statement)
+			// rule 34 (empty statement)
 		default:
 			emptyStatement();
 			return;
+		}
 	}
-}
+
 	private void emptyStatement() {
 		return;
-}
+	}
+
 	private void readStatement() {
 		// rule 45
-			match(Token.MP_READ);
-			match(Token.MP_LPAREN);
-			readParameter();
-			readParameterTail();
-			match(Token.MP_RPAREN);
+		match(Token.MP_READ);
+		match(Token.MP_LPAREN);
+		readParameter();
+		readParameterTail();
+		match(Token.MP_RPAREN);
 	}
 
 	private void readParameterTail() {
 		switch (lookahead) {
 		// rule 46
-		case MP_COMMA: 
+		case MP_COMMA:
 			match();
 			readParameter();
 			readParameterTail();
@@ -343,20 +369,20 @@ public class Parser {
 
 	private void readParameter() {
 		// rule 48
-			variableIdentifier();
+		variableIdentifier();
 	}
 
 	private void writeStatement() {
 		switch (lookahead) {
 		// rule 49
-		case MP_WRITE: 
+		case MP_WRITE:
 			match();
 			match(Token.MP_LPAREN);
 			writeParameter();
 			writeParameterTail();
 			match(Token.MP_RPAREN);
 			return;
-		// rule 50
+			// rule 50
 		case MP_WRITELN:
 			match();
 			match(Token.MP_LPAREN);
@@ -368,48 +394,50 @@ public class Parser {
 			error("Expected write statement");
 		}
 	}
-	
+
 	private void writeParameterTail() {
 		switch (lookahead) {
 		// rule 51
-		case MP_COMMA: 
+		case MP_COMMA:
 			match();
 			writeParameter();
 			writeParameterTail();
 			return;
-		// Rule 52 empty string
-		default: 
+			// Rule 52 empty string
+		default:
 			return;
 		}
 	}
+
 	private void writeParameter() {
 		// rule 53
-			ordinalExpression();
+		ordinalExpression();
 	}
+
 	private void assignmentStatement() {
 		// rule 54 or 55
 		variableIdentifier(); // or functionIdentifier
 		match(Token.MP_ASSIGN);
 		expression();
-}
+	}
 
 	private void ifStatement() {
 		// rule 56
-			match(Token.MP_IF);
-			booleanExpression();
-			match(Token.MP_THEN);
-			statement();
-			optionalElsePart();
+		match(Token.MP_IF);
+		booleanExpression();
+		match(Token.MP_THEN);
+		statement();
+		optionalElsePart();
 	}
 
 	private void optionalElsePart() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// rule 57
 		case MP_ELSE:
 			match();
 			statement();
 			return;
-		// rule 58
+			// rule 58
 		default:
 			return;
 		}
@@ -417,49 +445,49 @@ public class Parser {
 
 	private void repeatStatement() {
 		// rule 59
-			match(Token.MP_REPEAT);
-			statementSequence();
-			match(Token.MP_UNTIL);
-			booleanExpression();
+		match(Token.MP_REPEAT);
+		statementSequence();
+		match(Token.MP_UNTIL);
+		booleanExpression();
 	}
 
 	private void whileStatement() {
 		// rule 60
-			match(Token.MP_WHILE);
-			booleanExpression();
-			match(Token.MP_DO);
-			statement();
+		match(Token.MP_WHILE);
+		booleanExpression();
+		match(Token.MP_DO);
+		statement();
 	}
 
 	private void forStatement() {
 		// rule 61
-			match(Token.MP_FOR);
-			controlVariable();
-			match(Token.MP_ASSIGN);
-			initialValue();
-			stepValue();
-			finalValue();
-			match(Token.MP_DO);
-			statement();
+		match(Token.MP_FOR);
+		controlVariable();
+		match(Token.MP_ASSIGN);
+		initialValue();
+		stepValue();
+		finalValue();
+		match(Token.MP_DO);
+		statement();
 	}
 
 	private void controlVariable() {
 		// rule 62
-			variableIdentifier();
+		variableIdentifier();
 	}
 
 	private void initialValue() {
 		// Rule 63
-			ordinalExpression();
+		ordinalExpression();
 	}
 
 	private void stepValue() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 64
-		case MP_TO: 
+		case MP_TO:
 			match();
 			return;
-		// Rule 65
+			// Rule 65
 		case MP_DOWNTO:
 			match();
 			return;
@@ -470,8 +498,9 @@ public class Parser {
 
 	private void finalValue() {
 		// Rule 66
-			ordinalExpression();
+		ordinalExpression();
 	}
+
 	private void procedureStatement() {
 		// Rule 67
 		procedureIdentifier();
@@ -479,22 +508,22 @@ public class Parser {
 	}
 
 	private void optionalActualParameterList() {
-		switch(lookahead) {
-		// Rule 68 
+		switch (lookahead) {
+		// Rule 68
 		case MP_LPAREN:
 			match();
 			actualParameter();
 			actualParameterTail();
 			match(Token.MP_RPAREN);
 			return;
-		// Rule 69 
+			// Rule 69
 		default:
 			return;
 		}
 	}
-	
+
 	private void actualParameterTail() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 70
 		case MP_COMMA:
 			match();
@@ -502,7 +531,7 @@ public class Parser {
 			actualParameterTail();
 			match(Token.MP_RPAREN);
 			return;
-		// Rule 71
+			// Rule 71
 		default:
 			return;
 		}
@@ -510,56 +539,57 @@ public class Parser {
 
 	private void actualParameter() {
 		// Rule 72
-			ordinalExpression();
+		ordinalExpression();
 	}
 
 	private void expression() {
 
 		// Rule 73
-			simpleExpression();
-			optionalRelationalPart();
+		simpleExpression();
+		optionalRelationalPart();
 	}
 
 	private void optionalRelationalPart() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 74
 		case MP_EQUAL:
 		case MP_GEQUAL:
 		case MP_GTHAN:
 		case MP_LEQUAL:
-		case MP_NEQUAL: 
-		case MP_LPAREN:
+		case MP_NEQUAL:
+		case MP_LTHAN:
 			relationalOperator();
 			simpleExpression();
 			return;
-		// Rule 75
+			// Rule 75
 		default:
 			return;
 		}
 	}
+
 	private void relationalOperator() {
 		switch (lookahead) {
-		//rule 76
+		// rule 76
 		case MP_EQUAL:
 			match();
 			return;
-		//rule 77
+			// rule 77
 		case MP_LTHAN:
 			match();
 			return;
-		//rule 78
+			// rule 78
 		case MP_GTHAN:
 			match();
 			return;
-		//rule 79
+			// rule 79
 		case MP_LEQUAL:
 			match();
 			return;
-		//rule 80
+			// rule 80
 		case MP_GEQUAL:
 			match();
 			return;
-		//rule 81
+			// rule 81
 		case MP_NEQUAL:
 			match();
 			return;
@@ -570,14 +600,13 @@ public class Parser {
 
 	private void simpleExpression() {
 		// Rule 82
-			match(Token.MP_IDENTIFIER); 
-			optionalSign();
-			term();
-			termTail();
+		optionalSign();
+		term();
+		termTail();
 	}
 
 	private void termTail() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 83
 		case MP_OR:
 		case MP_MINUS:
@@ -586,41 +615,41 @@ public class Parser {
 			term();
 			termTail();
 			return;
-		// Rule 84
+			// Rule 84
 		default:
 			return;
 		}
 	}
 
 	private void optionalSign() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 85
-		case MP_PLUS: 
-			match(); 
+		case MP_PLUS:
+			match();
 			return;
-		// Rule 85
-		case MP_MINUS: 
-			match(); 
+			// Rule 85
+		case MP_MINUS:
+			match();
 			return;
-		// Rule 85
+			// Rule 85
 		default:
 			return;
 		}
 	}
 
 	private void addingOperator() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 88
-		case MP_PLUS: 
-			match(); 
+		case MP_PLUS:
+			match();
 			return;
-		// Rule 89
-		case MP_MINUS: 
-			match(); 
+			// Rule 89
+		case MP_MINUS:
+			match();
 			return;
-		// Rule 90
-		case MP_OR: 
-			match(); 
+			// Rule 90
+		case MP_OR:
+			match();
 			return;
 		default:
 			error("Expected adding operator");
@@ -630,41 +659,40 @@ public class Parser {
 	// 91 term
 	private void term() {
 		// Rule 91
-			factor();
-			factorTail();
+		factor();
+		factorTail();
 	}
 
 	private void factorTail() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 92
 		case MP_AND:
 		case MP_DIV:
 		case MP_MOD:
 		case MP_FLOAT_DIVIDE:
 		case MP_TIMES:
-			match(); 
 			multiplyingOperator();
 			factor();
 			factorTail();
-		// Rule 92
+			// Rule 92
 		default:
 			return;
 		}
 	}
 
 	private void multiplyingOperator() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 94
-		case MP_TIMES: 
-			match(); 
+		case MP_TIMES:
+			match();
 			return;
 			// Rule 95
-		case MP_FLOAT_DIVIDE: 
-			match(); 
+		case MP_FLOAT_DIVIDE:
+			match();
 			return;
 			// Rule 96
-		case MP_DIV: 
-			match(); 
+		case MP_DIV:
+			match();
 			return;
 			// Rule 97
 		case MP_MOD:
@@ -678,41 +706,45 @@ public class Parser {
 			error("Expected multiplying operator");
 		}
 	}
-	
+
 	private void factor() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 99 (How do we handle these next 3 rules 99-102?)
-		case MP_INTEGER_LIT: 
-			match(); 
+		case MP_INTEGER_LIT:
+			match();
 			return;
-		// Rule 100
-		case MP_FLOAT_LIT: 
-			match(); 
+			// Rule 100
+		case MP_FLOAT_LIT:
+			match();
 			return;
-		// Rule 101
-		case MP_STRING_LIT: 
-			match(); 
+			// Rule 101
+		case MP_FIXED_LIT:
+			match();
 			return;
-		// Rule 102
+			// Rule 101
+		case MP_STRING_LIT:
+			match();
+			return;
+			// Rule 102
 		case MP_TRUE:
 			match();
 			return;
-		// Rule 103
+			// Rule 103
 		case MP_FALSE:
 			match();
 			return;
-		// Rule 104
+			// Rule 104
 		case MP_NOT:
 			match();
 			factor();
 			return;
-		// Rule 105
+			// Rule 105
 		case MP_LPAREN:
 			match();
 			expression();
 			match(Token.MP_RPAREN);
 			return;
-		// Rule 106
+			// Rule 106
 		default:
 			functionIdentifier();
 			optionalActualParameterList();
@@ -722,22 +754,22 @@ public class Parser {
 
 	private void programIdentifier() {
 		// Rule 107
-			match(Token.MP_IDENTIFIER);
+		match(Token.MP_IDENTIFIER);
 	}
 
 	private void variableIdentifier() {
 		// Rule 108
-			match(Token.MP_IDENTIFIER);
+		match(Token.MP_IDENTIFIER);
 	}
 
 	private void procedureIdentifier() {
 		// Rule 109
-			match(Token.MP_IDENTIFIER);
+		match(Token.MP_IDENTIFIER);
 	}
 
 	private void functionIdentifier() {
 		// Rule 110
-			match(Token.MP_IDENTIFIER);
+		match(Token.MP_IDENTIFIER);
 	}
 
 	private void booleanExpression() {
@@ -747,26 +779,26 @@ public class Parser {
 
 	private void ordinalExpression() {
 		// Rule 112
-			expression();
+		expression();
 
 	}
 
 	private void identifierList() {
 		// Rule 113
-			match(Token.MP_IDENTIFIER); 
-			identifierTail();
-			return;
+		match(Token.MP_IDENTIFIER);
+		identifierTail();
+		return;
 	}
 
 	private void identifierTail() {
-		switch(lookahead) {
+		switch (lookahead) {
 		// Rule 114
-		case MP_COMMA: 
-			match(); 
+		case MP_COMMA:
+			match();
 			match(Token.MP_IDENTIFIER);
 			identifierTail();
 			return;
-		// Rule 115
+			// Rule 115
 		default:
 			return;
 		}

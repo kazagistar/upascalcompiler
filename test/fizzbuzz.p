@@ -1,4 +1,4 @@
-program fizzbuzz(output);
+program fizzbuzz;
 var
   i: integer;
 begin
