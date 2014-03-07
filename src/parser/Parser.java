@@ -9,7 +9,6 @@ public class Parser {
 	private Lexeme lookaheadLexeme;
 	private Token lookahead;
 	private Lexeme matched;
-	private int treeDepth = 0;
 
 	public Parser(LexemeProvider in) {
 		this.in = in;
