@@ -1,5 +1,9 @@
 package parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import symbolTable.*;
 import lexer.Lexeme;
 import lexer.LexemeProvider;
 import lexer.Token;
@@ -9,11 +13,13 @@ public class Parser {
 	private Lexeme lookaheadLexeme;
 	private Token lookahead;
 	private Lexeme matched;
+	private final SymbolTable table;
 
 	public Parser(LexemeProvider in) {
 		this.in = in;
 		// load the first lookahead
 		match();
+		table = new SymbolTable();
 	}
 
 	public void run() {
@@ -90,6 +96,7 @@ public class Parser {
 		variableDeclarationPart();
 		procedureAndFunctionDeclarationPart();
 		statementPart();
+		table.destroyScope();
 	}
 
 	// 5 5 VariableDeclarationPart => "var" VariableDeclaration ";"
@@ -126,32 +133,37 @@ public class Parser {
 	// 9 9 VariableDeclaration => Identifierlist ":" Type
 	private void variableDeclaration() {
 		// rule 9
-		identifierList();
+		List<String> idList = identifierList();
 		match(Token.MP_COLON);
-		type();
+		Type newType = type();
+		
+		for (String id : idList) {
+			table.add(id, new Variable(newType));
+		}
 	}
 
-	private void type() {
+	private Type type() {
 		switch (lookahead) {
 		// rule 10
 		case MP_INTEGER:
 			match();
-			return;
+			return Type.Integer;
 			// rule 11
 		case MP_FLOAT:
 			match();
-			return;
+			return Type.Float;
 			// rule 12
 		case MP_STRING:
 			match();
-			return;
+			return Type.String;
 			// rule 13
 		case MP_BOOLEAN:
 			match();
-			return;
+			return Type.Boolean;
 			// error call
 		default:
 			error("Needed to find a type declaration");
+			return null;
 		}
 	}
 
@@ -192,40 +204,46 @@ public class Parser {
 	private void procedureHeading() {
 		// rule 19
 		match(Token.MP_PROCEDURE);
-		procedureIdentifier();
-		optionalFormalParameterList();
+		String id = procedureIdentifier();
+		table.addScope(id, ScopeSort.Procedure);
+		List<Type> typeList = new ArrayList<Type>();
+		optionalFormalParameterList(typeList);
+		table.addParent(id, new Procedure((Type[]) typeList.toArray()));
 	}
 
 	private void functionHeading() {
 		// rule 20
 		match(Token.MP_FUNCTION);
-		functionIdentifier();
-		optionalFormalParameterList();
-		type();
+		String id = functionIdentifier();
+		table.addScope(id, ScopeSort.Function);
+		List<Type> typeList = new ArrayList<Type>();
+		optionalFormalParameterList(typeList);
+		Type returnType = type();
+		table.addParent(id, new Function(returnType, (Type[]) typeList.toArray()));
 	}
 
-	private void optionalFormalParameterList() {
+	private List<Type> optionalFormalParameterList(List<Type> typeList) {
 		switch (lookahead) {
 		// rule 21
 		case MP_LPAREN:
 			match();
-			formalParameterSection();
-			formalParameterSectionTail();
+			formalParameterSection(typeList);
+			formalParameterSectionTail(typeList);
 			match(Token.MP_RPAREN);
-			return;
+			return typeList;
 			// rule 22 (empty String)
 		default:
-			return;
+			return typeList;
 		}
 	}
 
-	private void formalParameterSectionTail() {
+	private void formalParameterSectionTail(List<Type> typeList) {
 		switch (lookahead) {
 		// rule 23
 		case MP_SCOLON:
 			match();
-			formalParameterSection();
-			formalParameterSectionTail();
+			formalParameterSection(typeList);
+			formalParameterSectionTail(typeList);
 			return;
 			// rule 24 (empty String)
 		default:
@@ -233,33 +251,43 @@ public class Parser {
 		}
 	}
 
-	private void formalParameterSection() {
+	private void formalParameterSection(List<Type> typeList) {
 		switch (lookahead) {
 		// rule 25
 		case MP_IDENTIFIER:
-			valueParameterSection();
+			valueParameterSection(typeList);
 			return;
 			// rule 26
 		case MP_VAR:
-			variableParameterSection();
+			variableParameterSection(typeList);
 			return;
 		default:
 			error("Expected an identifier or variable");
 		}
 	}
 
-	private void valueParameterSection() {
+	private void valueParameterSection(List<Type> typeList) {
 		// rule 27
-		identifierList();
+		List<String> idList = identifierList();
 		match(Token.MP_COLON);
-		type();
+		Type newType = type();
+
+		for (String id : idList) {
+			table.add(id, new Variable(newType));
+			typeList.add(newType);
+		}
 	}
 
-	private void variableParameterSection() {
+	private void variableParameterSection(List<Type> typeList) {
 		match(Token.MP_VAR);
-		identifierList();
+		List<String> idList = identifierList();
 		match(Token.MP_COLON);
-		type();
+		Type newType = type();
+
+		for (String id : idList) {
+			table.add(id, new Variable(newType));
+			typeList.add(newType);
+		}
 	}
 
 	private void statementPart() {
@@ -756,19 +784,22 @@ public class Parser {
 		match(Token.MP_IDENTIFIER);
 	}
 
-	private void variableIdentifier() {
+	private String variableIdentifier() {
 		// Rule 108
 		match(Token.MP_IDENTIFIER);
+		return matched.getLexemeContent();
 	}
 
-	private void procedureIdentifier() {
+	private String procedureIdentifier() {
 		// Rule 109
 		match(Token.MP_IDENTIFIER);
+		return matched.getLexemeContent();
 	}
 
-	private void functionIdentifier() {
+	private String functionIdentifier() {
 		// Rule 110
 		match(Token.MP_IDENTIFIER);
+		return matched.getLexemeContent();
 	}
 
 	private void booleanExpression() {
@@ -782,20 +813,23 @@ public class Parser {
 
 	}
 
-	private void identifierList() {
+	private List<String> identifierList() {
 		// Rule 113
+		List<String> idList = new ArrayList<String>();
 		match(Token.MP_IDENTIFIER);
-		identifierTail();
-		return;
+		idList.add(matched.getLexemeContent());
+		identifierTail(idList);
+		return idList;
 	}
 
-	private void identifierTail() {
+	private void identifierTail(List<String> idList) {
 		switch (lookahead) {
 		// Rule 114
 		case MP_COMMA:
 			match();
 			match(Token.MP_IDENTIFIER);
-			identifierTail();
+			idList.add(matched.getLexemeContent());
+			identifierTail(idList);
 			return;
 			// Rule 115
 		default:

@@ -4,8 +4,10 @@ import java.util.Arrays;
 
 public class Function implements Typeclass {
 	public final Type[] params;
+	public final Type returned;
 	
-	public Function(Type[] params) {
+	public Function(Type returned, Type[] params) {
+		this.returned = returned;
 		this.params = params;
 	}
 	
@@ -23,7 +25,7 @@ public class Function implements Typeclass {
 	public boolean matches(Typeclass other) {
 		if (! Function.isClassOf(other)) return false;
 		Function cast = (Function) other;
-		return Arrays.equals(this.params, cast.params);
+		return this.returned == cast.returned && Arrays.equals(this.params, cast.params);
 	}
 	
 	@Override

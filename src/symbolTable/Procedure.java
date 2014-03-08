@@ -4,11 +4,9 @@ import java.util.Arrays;
 
 public class Procedure implements Typeclass {
 	public final Type[] params;
-	public final Type returned;
 	
-	public Procedure(Type returned, Type[] params) {
+	public Procedure(Type[] params) {
 		this.params = params;
-		this.returned = returned;
 	}
 	
 	public static boolean isClassOf(Typeclass other) {
@@ -25,7 +23,7 @@ public class Procedure implements Typeclass {
 	public boolean matches(Typeclass other) {
 		if (! Procedure.isClassOf(other)) return false;
 		Procedure cast = (Procedure) other;
-		return this.returned == cast.returned && Arrays.equals(this.params, cast.params);
+		return Arrays.equals(this.params, cast.params);
 	}
 	
 	@Override

@@ -11,6 +11,10 @@ public class SymbolTable {
 	public void add(String identName, Typeclass type){
 		scopeStack.add(identName, type);
 	}
+
+	public void addParent(String identName, Typeclass type){
+		scopeStack.getParent().add(identName, type);
+	}
 	
 	// lookup() method
 	// checks to see if the identifier is already present in the scope (or any

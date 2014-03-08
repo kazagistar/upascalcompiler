@@ -3,13 +3,13 @@ package symbolTable;
 import java.util.HashMap;
 
 public class Scope {
-	private Scope parent = null; //doubles as next table pointer
-	private String label; //the name of the scope
-	private HashMap<String, ScopeEntry> symbolTableScope; //stores lexeme name and Type var for each entry in scope
-	private int nestingLevel; //(the nesting level of the scope)
+	private final Scope parent; //doubles as next table pointer
+	private final String label; //the name of the scope
+	private final HashMap<String, ScopeEntry> symbolTableScope; //stores lexeme name and Type var for each entry in scope
+	private final int nestingLevel; //(the nesting level of the scope)
 	private int sizeInBytes = 0; //the size (in Bytes of the scope table)
 	private int offsetCounter = 0;
-	private ScopeSort sort; //the type of scope table
+	private final ScopeSort sort; //the type of scope table
 	
 	//creates a new scope with the given name and parent scope.
 	Scope(String label, ScopeSort sort, Scope parent){
@@ -18,6 +18,7 @@ public class Scope {
 		this.sort = sort;
 		//if parent is not null, then nesting level = parents nestinglevel + 1, otherwise nesting level is 0
 		this.nestingLevel = parent == null ? 0 : parent.getNestingLevel() + 1;
+		symbolTableScope = new HashMap<String, ScopeEntry>();
 	}
 	
 	public int getNestingLevel(){
@@ -34,8 +35,8 @@ public class Scope {
 		// (or a parent scope), if so, an error is thrown, else the identifier
 		// is added to the scope.
 		
-		if (lookup(identName) == null) {
-			System.out.println("ERROR, the identifier " + identName + " is already used in a parent scope, please change the name of the identifier!");
+		if (lookup(identName) != null) {
+			throw new RuntimeException("ERROR, the identifier " + identName + " is already used in a parent scope, please change the name of the identifier!");
 
 		} else {
 			// where type.getIdentifier() returns a string containing the name
