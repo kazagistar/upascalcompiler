@@ -85,7 +85,14 @@ MileStone 8
 
 
 
-
+Milestone 9/10 (Level C) --> aim to have done by 3-29
+++++++++++++++++++++++++++++
+-inside code generator set up output file for code that has been generated.
+-Make Semantic anylizer class
+	-methods Level C: arethmaticExpression, push / pop (load/store), read (generate read statement code), write (generate write statement code)
+	-Type conversion system
+-Insert "type" perams into relevant expression related methods in parser
+-Insert calls to symantic anylyzer (these go inside parser, usually close to a match() call)
 
 
 
