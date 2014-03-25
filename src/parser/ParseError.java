@@ -18,6 +18,10 @@ public class ParseError extends RuntimeException {
 		s += " but got a " + bad.getToken() + " \"" + bad.getLexemeContent() + "\"";
 		this.message = s;
 	}
+	ParseError(String symbol, String message, Lexeme bad) {
+		String s = symbol + message + "at row" + bad.getRow() + ": column " + bad.getColumn() + ".";
+		this.message = s;
+	}
 	
 	public String toString() {
 		return message;

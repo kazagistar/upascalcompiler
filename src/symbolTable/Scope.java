@@ -72,6 +72,19 @@ public class Scope {
 		}
 	}
 	
+	
+	//looks up and returns the address of an identifier from symbol table, based on the identName input.
+	public String lookupAddress(String identName){
+		if (symbolTableScope.containsKey(identName)) {
+			int offset = symbolTableScope.get(identName).offset;
+			return offset + "(D" + nestingLevel + ")";
+		}else if (this.parent != null && this.parent.lookup(identName) != null){
+			return this.parent.lookupAddress(identName);
+		}
+		else return null;
+	}
+	
+	
 	class ScopeEntry {
 		final Typeclass type;
 		final int offset;

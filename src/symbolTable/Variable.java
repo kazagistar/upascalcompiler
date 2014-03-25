@@ -25,6 +25,10 @@ public class Variable implements Typeclass {
 	}
 	
 	@Override
+	public Type getReturnType(){
+		return type;
+	}
+	@Override
 	public int getSize(){
 		return 1;
 	}

@@ -34,4 +34,8 @@ public class SymbolTable {
 	public void addScope(String scopeName, ScopeSort sort){
 		scopeStack = new Scope(scopeName, sort, scopeStack);
 	}
+	//returns a String in the form "offset(D#)" for a specified identifierName
+	public String lookupAddress(String identName){
+		return scopeStack.lookupAddress(identName);
+	}
 }
