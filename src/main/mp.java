@@ -59,7 +59,7 @@ public class mp {
 		scanner = new LexemeErrorPrinter(scanner, stdout);
 		
 		// Run the parser
-		Parser parser = new Parser(scanner);
+		Parser parser = new Parser(scanner, stdout);
 		parser.run();
 		
 		// Close output streams
