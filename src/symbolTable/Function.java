@@ -32,4 +32,10 @@ public class Function implements Typeclass {
 	public int getSize(){
 		return 0;
 	}
+
+	@Override
+	public Type getReturnType() {
+		
+		return returned;
+	}
 }
