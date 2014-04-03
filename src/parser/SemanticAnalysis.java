@@ -21,10 +21,15 @@ public class SemanticAnalysis {
 	public Type load(Lexeme symbol){
 		Typeclass type = symbols.lookup(symbol.getLexemeContent());
 		if (type == null){
-			throw new ParseError(symbol.getLexemeContent(), " Is not Defined ", symbol);
+			throw new SemanticError( "variable: " + symbol.getLexemeContent() + " Is not Defined ", symbol);
 		}
 		if (!Variable.isClassOf(type)){
-			throw new ParseError("Expected a Variable", symbol);
+			if(Function.isClassOf(type))
+			{
+				throw new SemanticError("Expected a Variable, found: Function ", symbol);
+			} else {
+				throw new SemanticError("Expected a Variable, found: Procedure ", symbol);
+			}
 		}
 		writer.println("PUSH " + symbols.lookupAddress(symbol.getLexemeContent()));
 		return type.getReturnType();
@@ -34,18 +39,23 @@ public class SemanticAnalysis {
 	public void store(Lexeme symbol, Type stackType){
 		Typeclass type = symbols.lookup(symbol.getLexemeContent());
 		if (type == null){
-			throw new ParseError(symbol.getLexemeContent(), " Is not Defined, cannot pop value ", symbol);
+			throw new SemanticError("variable: " + symbol.getLexemeContent() + " Is not Defined, cannot pop value ", symbol);
 		}
 		if (!Variable.isClassOf(type)){
-			throw new ParseError("Expected a Variable", symbol);
+			if(Function.isClassOf(type))
+			{
+				throw new SemanticError("Expected a Variable, found: Function ", symbol);
+			} else {
+				throw new SemanticError("Expected a Variable, found: Procedure ", symbol);
+			}
 		}
 		if(!cast(stackType, type.getReturnType())){
-			throw new ParseError(symbol.getLexemeContent() + " Has a type mis-match, could not be poped ", symbol);
+			throw new SemanticError(stackType, type.getReturnType(), symbol);
 		}
 		writer.println("POP " + symbols.lookupAddress(symbol.getLexemeContent()));
 	}
 	
-	//return true if cast is successfull
+	//return true if cast is successful
 	//return false if not.
 	private boolean cast(Type stackType, Type targetType){
 		if (stackType == targetType){
@@ -94,7 +104,7 @@ public class SemanticAnalysis {
 			return Type.Float;
 		}else{
 			//if it is a boolean or string
-			throw new ParseError("", " Mistmatched types for operator ", symbol);
+			throw new SemanticError(op1Type, op2Type, symbol);
 		}
 	}
 	
@@ -112,10 +122,17 @@ public class SemanticAnalysis {
 	public void read(Lexeme symbol){
 		Typeclass type = symbols.lookup(symbol.getLexemeContent());
 		if (type == null){
-			throw new ParseError(symbol.getLexemeContent(), " Is not Defined, cannot pop value ", symbol);
+			throw new SemanticError(" Is not Defined, cannot pop value. "
+					+ "Unsure what's supposed to happen. This occurs in "
+					+ "read when type == null ", symbol); // Unsure what to happen
 		}
 		if (!Variable.isClassOf(type)){
-			throw new ParseError("Expected a Variable", symbol);
+			if(Function.isClassOf(type))
+			{
+				throw new SemanticError("Expected a Variable, found: Function ", symbol);
+			} else {
+				throw new SemanticError("Expected a Variable, found: Procedure ", symbol);
+			}
 		}
 		if (type.getReturnType().equals(Type.String)){
 			writer.println("RDS "+symbols.lookupAddress(symbol.getLexemeContent()));
@@ -127,7 +144,7 @@ public class SemanticAnalysis {
 			writer.println("RDF "+symbols.lookupAddress(symbol.getLexemeContent()));
 		}
 		else {
-			throw new ParseError("could not ",  "read in, specified value ", symbol);
+			throw new SemanticError("could not read in specified value ", symbol);
 		}
 	}
 	
