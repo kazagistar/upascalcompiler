@@ -570,7 +570,6 @@ public class Parser {
 	}
 
 	private void expression() {
-
 		// Rule 73
 		simpleExpression();
 		optionalRelationalPart();
