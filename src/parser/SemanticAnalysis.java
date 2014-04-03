@@ -3,6 +3,7 @@ package parser;
 import java.io.PrintWriter;
 
 import lexer.Lexeme;
+import lexer.Token;
 import symbolTable.*;
 import parser.*;
 public class SemanticAnalysis {
@@ -106,6 +107,17 @@ public class SemanticAnalysis {
 			throw new SemanticError(op1Type, op2Type, symbol);
 		}
 	}
+	
+	public Type booleanExpression(String operation,Type op1Type, Type op2Type, Lexeme symbol){
+		if (op1Type.equals(Type.Boolean) && op2Type.equals(Type.Boolean)) {
+			writer.println(operation);
+			return Type.Boolean;
+		}else{
+			//if it is a boolean or string
+			throw new ParseError("", " Mistmatched types for operator ", symbol);
+		}
+	}
+	
 	//generates read statement code
 	public void read(Lexeme symbol){
 		Typeclass type = symbols.lookup(symbol.getLexemeContent());
@@ -139,6 +151,57 @@ public class SemanticAnalysis {
 	//generates write statement code
 	public void write(){
 		
+	}
+	
+	public void negate(Type stackType, Lexeme symbol) {
+		if (stackType == Type.Integer) {
+			writer.println("NEGS");
+		}
+		else if (stackType == Type.Float) {
+			writer.println("NEGSF");
+		}
+		else {
+			throw new ParseError("negative sign is only applicable for",  "non numberic values at ", symbol);
+		}
+	}
+	
+
+	public void not(Type stackType) {
+		if (stackType == Type.Integer) {
+			writer.println("NOTS");
+		}
+		else if (stackType == Type.Float) {
+			writer.println("NOTS");
+		}
+	}
+	
+	public Type loadLiteral(Lexeme literalLexeme) {
+		String literal;
+		switch (literalLexeme.getToken()) {
+		case MP_INTEGER_LIT:
+			literal = literalLexeme.getLexemeContent();
+			writer.println("PUSH #" + literal);
+			return Type.Integer;
+		case MP_FLOAT_LIT:
+		case MP_FIXED_LIT:
+			literal = literalLexeme.getLexemeContent();
+			writer.println("PUSH #" + literal);
+			return Type.Float;
+		case MP_STRING_LIT:
+			literal = literalLexeme.getLexemeContent();
+			literal = literal.replace("\\", "\\\\");
+			literal = "\"" + literal + "\"";
+			writer.println("PUSH #" + literal);
+			return Type.Float;
+		case MP_TRUE:
+			writer.println("PUSH #1");
+			return Type.Boolean;
+		case MP_FALSE:
+			writer.println("PUSH #0");
+			return Type.Boolean;
+		default:
+			throw new ParseError("could not ",  "read in, specified value ", literalLexeme);
+		}
 	}
 
 }

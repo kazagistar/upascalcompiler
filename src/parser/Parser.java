@@ -1,5 +1,6 @@
 package parser;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,14 @@ public class Parser {
 	private Token lookahead;
 	private Lexeme matched;
 	private final SymbolTable table;
+	private final SemanticAnalysis semantic;
 
-	public Parser(LexemeProvider in) {
+	public Parser(LexemeProvider in, PrintWriter out) {
 		this.in = in;
 		// load the first lookahead
 		match();
 		table = new SymbolTable();
+		semantic = new SemanticAnalysis(out, table);
 	}
 
 	public void run() {
@@ -443,9 +446,10 @@ public class Parser {
 
 	private void assignmentStatement() {
 		// rule 54 or 55
-		variableIdentifier(); // or functionIdentifier
+		Lexeme target = variableIdentifier(); // or functionIdentifier
 		match(Token.MP_ASSIGN);
-		expression();
+		Type resultType = expression();
+		semantic.store(target, resultType);
 	}
 
 	private void ifStatement() {
@@ -569,10 +573,10 @@ public class Parser {
 		ordinalExpression();
 	}
 
-	private void expression() {
+	private Type expression() {
 		// Rule 73
-		simpleExpression();
-		optionalRelationalPart();
+		Type firstType = simpleExpression();
+		return optionalRelationalPart(firstType);
 	}
 
 	private void optionalRelationalPart() {
@@ -624,69 +628,78 @@ public class Parser {
 		}
 	}
 
-	private void simpleExpression() {
+	private Type simpleExpression() {
 		// Rule 82
-		optionalSign();
-		term();
-		termTail();
+		Lexeme negSign = optionalSign();
+		Type firstType = term();
+		if (negSign != null) {
+			semantic.negate(firstType, negSign);
+		}
+		return termTail(firstType);
 	}
 
-	private void termTail() {
+	private Type termTail(Type firstType) {
+		Lexeme operator;
+		Type secondType, castType;
+		
 		switch (lookahead) {
 		// Rule 83
 		case MP_OR:
+			operator = addingOperator();
+			secondType = term();
+			castType = semantic.booleanExpression("ORS", firstType, secondType, operator);
+			return termTail(castType);
 		case MP_MINUS:
+			operator = addingOperator();
+			secondType = term();
+			castType = semantic.numericExpression("SUBS", firstType, secondType, operator);
+			return termTail(castType);
 		case MP_PLUS:
-			addingOperator();
-			term();
-			termTail();
-			return;
+			operator = addingOperator();
+			secondType = term();
+			castType = semantic.numericExpression("ADDS", firstType, secondType, operator);
+			return termTail(castType);
 			// Rule 84
 		default:
-			return;
+			return firstType;
 		}
 	}
 
-	private void optionalSign() {
+	private Lexeme optionalSign() {
 		switch (lookahead) {
 		// Rule 85
 		case MP_PLUS:
 			match();
-			return;
+			return null;
 			// Rule 85
 		case MP_MINUS:
 			match();
-			return;
+			return matched;
 			// Rule 85
 		default:
-			return;
+			return null;
 		}
 	}
 
-	private void addingOperator() {
+	private Lexeme addingOperator() {
 		switch (lookahead) {
-		// Rule 88
+		// Rule 88, 89, 90
 		case MP_PLUS:
-			match();
-			return;
-			// Rule 89
 		case MP_MINUS:
-			match();
-			return;
-			// Rule 90
 		case MP_OR:
 			match();
-			return;
+			return matched;
 		default:
 			error("Expected adding operator");
+			return null;
 		}
 	}
 
 	// 91 term
-	private void term() {
+	private Type term() {
 		// Rule 91
-		factor();
-		factorTail();
+		Type firstType = factor();
+		return factorTail(firstType);
 	}
 
 	private void factorTail() {
@@ -733,41 +746,33 @@ public class Parser {
 		}
 	}
 
-	private void factor() {
+	private Type factor() {
+		Type returnedType;
+		
 		switch (lookahead) {
-		// Rule 99 (How do we handle these next 3 rules 99-102?)
+		// Rule 99, 100, 101, 102, 103
 		case MP_INTEGER_LIT:
-			match();
-			return;
-			// Rule 100
 		case MP_FLOAT_LIT:
-			match();
-			return;
-			// Rule 101
 		case MP_FIXED_LIT:
-			match();
-			return;
-			// Rule 101
 		case MP_STRING_LIT:
-			match();
-			return;
-			// Rule 102
 		case MP_TRUE:
-			match();
-			return;
-			// Rule 103
 		case MP_FALSE:
 			match();
-			return;
+			return semantic.loadLiteral(matched);
 			// Rule 104
 		case MP_NOT:
 			match();
-			factor();
+			Lexeme notLexeme = matched;
+			returnedType = factor();
+			if (returnedType != Type.Boolean) {
+				throw new ParseError("not is only applicable for",  "non boolean values at ", notLexeme);
+			}
+			
 			return;
 			// Rule 105
 		case MP_LPAREN:
 			match();
-			expression();
+			returnedType = expression();
 			match(Token.MP_RPAREN);
 			return;
 			// Rule 106
@@ -783,10 +788,10 @@ public class Parser {
 		match(Token.MP_IDENTIFIER);
 	}
 
-	private String variableIdentifier() {
+	private Lexeme variableIdentifier() {
 		// Rule 108
 		match(Token.MP_IDENTIFIER);
-		return matched.getLexemeContent();
+		return matched;
 	}
 
 	private String procedureIdentifier() {
