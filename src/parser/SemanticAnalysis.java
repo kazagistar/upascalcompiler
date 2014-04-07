@@ -114,7 +114,7 @@ public class SemanticAnalysis {
 			return Type.Boolean;
 		}else{
 			//if it is a boolean or string
-			throw new ParseError("", " Mistmatched types for operator ", symbol);
+			throw new SemanticError(op1Type, op2Type, symbol);
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class SemanticAnalysis {
 			writer.println("NEGSF");
 		}
 		else {
-			throw new ParseError("negative sign is only applicable for",  "non numberic values at ", symbol);
+			throw new SemanticError("negative sign is only applicable for non numberic values at ", symbol);
 		}
 	}
 	
@@ -200,7 +200,7 @@ public class SemanticAnalysis {
 			writer.println("PUSH #0");
 			return Type.Boolean;
 		default:
-			throw new ParseError("could not ",  "read in, specified value ", literalLexeme);
+			throw new SemanticError("could not read in specified value ", literalLexeme);
 		}
 	}
 

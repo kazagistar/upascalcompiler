@@ -765,9 +765,8 @@ public class Parser {
 			Lexeme notLexeme = matched;
 			returnedType = factor();
 			if (returnedType != Type.Boolean) {
-				throw new ParseError("not is only applicable for",  "non boolean values at ", notLexeme);
+				throw new SemanticError("not is only applicable for non boolean values at ", notLexeme);
 			}
-			
 			return;
 			// Rule 105
 		case MP_LPAREN:
