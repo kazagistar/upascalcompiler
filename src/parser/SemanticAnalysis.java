@@ -55,9 +55,24 @@ public class SemanticAnalysis {
 		writer.println("POP " + symbols.lookupAddress(symbol.getLexemeContent()));
 	}
 	
+	public void createSemanticRecord(){
+		int scopeOffSet = symbols.getScopeSize();
+		writer.println("MOV SP D0");
+		writer.println("ADD SP #" + scopeOffSet + " SP");
+	}
+	
+	public void destroySemanticRecord(){
+		int scopeOffSet = symbols.getScopeSize();
+		writer.println("SUB SP #" + scopeOffSet + " SP");
+	}
+	
+	public void halt(){
+		writer.println("HLT");
+	}
+	
 	//return true if cast is successful
 	//return false if not.
-	private boolean cast(Type stackType, Type targetType){
+	public boolean cast(Type stackType, Type targetType){
 		if (stackType == targetType){
 			return true;
 		}
@@ -108,6 +123,14 @@ public class SemanticAnalysis {
 		}
 	}
 	
+	//operation = String containtaiging either ADDS, MULS, SUBS,DIVS,MODS 
+		// op1Type = type of the top thing on stack
+		//op2Type = type of the second thing on stack
+		public Type relationalExpression(String operation,Type op1Type, Type op2Type, Lexeme symbol){
+			numericExpression(operation, op1Type, op2Type, symbol);
+			return Type.Boolean;
+		}
+	
 	public Type booleanExpression(String operation,Type op1Type, Type op2Type, Lexeme symbol){
 		if (op1Type.equals(Type.Boolean) && op2Type.equals(Type.Boolean)) {
 			writer.println(operation);
@@ -148,10 +171,21 @@ public class SemanticAnalysis {
 		}
 	}
 	
+	
+	
+	
 	//generates write statement code
-	public void write(){
-		
+	public void write(Type stackType){
+//		if (stackType == Type.Boolean){
+//			writer.println("MOV #\"True\" 0(SP)");
+//			writer
+//		}
+		writer.println("WRTS");
 	}
+	public void newLine(){
+		writer.println("WRT #\"\\n\"");
+	}
+	
 	
 	public void negate(Type stackType, Lexeme symbol) {
 		if (stackType == Type.Integer) {

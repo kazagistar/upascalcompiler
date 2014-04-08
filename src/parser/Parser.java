@@ -73,6 +73,7 @@ public class Parser {
 		// rule 1
 		program();
 		match(Token.MP_EOF);
+		semantic.halt();
 	}
 
 	// ProgramHeading ";" Block "."
@@ -98,7 +99,10 @@ public class Parser {
 		// rule 4
 		variableDeclarationPart();
 		procedureAndFunctionDeclarationPart();
+		//sets the D(n) pointer for each scope, and moves the stack above the symbol table
+		semantic.createSemanticRecord();
 		statementPart();
+		semantic.destroySemanticRecord();
 		table.destroyScope();
 	}
 
@@ -300,6 +304,7 @@ public class Parser {
 	private void compoundStatement() {
 		// rule 30
 		match(Token.MP_BEGIN);
+		
 		statementSequence();
 		match(Token.MP_END);
 	}
@@ -343,9 +348,12 @@ public class Parser {
 			// symbol table context
 		case MP_IDENTIFIER:
 			// if the identifier is a function
-			assignmentStatement();
+			if (Procedure.isClassOf(table.lookup(lookaheadLexeme.getLexemeContent()))){
+				procedureStatement();
+			}else{
 			// elseif the identifier is a procedure
-			procedureStatement();
+			assignmentStatement();
+			}
 			return;
 			// rule 39
 		case MP_IF:
@@ -399,7 +407,7 @@ public class Parser {
 
 	private void readParameter() {
 		// rule 48
-		variableIdentifier();
+		semantic.read(variableIdentifier());
 	}
 
 	private void writeStatement() {
@@ -419,6 +427,7 @@ public class Parser {
 			writeParameter();
 			writeParameterTail();
 			match(Token.MP_RPAREN);
+			semantic.newLine();
 			return;
 		default:
 			error("Expected write statement");
@@ -441,7 +450,7 @@ public class Parser {
 
 	private void writeParameter() {
 		// rule 53
-		ordinalExpression();
+		semantic.write(ordinalExpression());
 	}
 
 	private void assignmentStatement() {
@@ -579,52 +588,66 @@ public class Parser {
 		return optionalRelationalPart(firstType);
 	}
 
-	private void optionalRelationalPart() {
+	private Type optionalRelationalPart(Type firstType) {
+		Lexeme operator;
+		Type secondType, castType;
 		switch (lookahead) {
 		// Rule 74
 		case MP_EQUAL:
+			operator = relationalOperator();
+			secondType = simpleExpression();
+			castType = semantic.relationalExpression("CMPEQS", firstType, secondType, operator);
+			return castType;
 		case MP_GEQUAL:
+			operator = relationalOperator();
+			secondType = simpleExpression();
+			castType = semantic.relationalExpression("CMPGES", firstType, secondType, operator);
+			return castType;
 		case MP_GTHAN:
+			operator = relationalOperator();
+			secondType = simpleExpression();
+			castType = semantic.relationalExpression("CMPGTS", firstType, secondType, operator);
+			return castType;
 		case MP_LEQUAL:
+			operator = relationalOperator();
+			secondType = simpleExpression();
+			castType = semantic.relationalExpression("CMPLES", firstType, secondType, operator);
+			return castType;
 		case MP_NEQUAL:
+			operator = relationalOperator();
+			secondType = simpleExpression();
+			castType = semantic.relationalExpression("CMPNES", firstType, secondType, operator);
+			return castType;
 		case MP_LTHAN:
-			relationalOperator();
-			simpleExpression();
-			return;
+			operator = relationalOperator();
+			secondType = simpleExpression();
+			castType = semantic.relationalExpression("CMPLTS", firstType, secondType, operator);
+			return castType;
 			// Rule 75
 		default:
-			return;
+			return firstType;
 		}
 	}
 
-	private void relationalOperator() {
+	private Lexeme relationalOperator() {
 		switch (lookahead) {
 		// rule 76
 		case MP_EQUAL:
-			match();
-			return;
 			// rule 77
 		case MP_LTHAN:
-			match();
-			return;
 			// rule 78
 		case MP_GTHAN:
-			match();
-			return;
 			// rule 79
 		case MP_LEQUAL:
-			match();
-			return;
 			// rule 80
 		case MP_GEQUAL:
-			match();
-			return;
 			// rule 81
 		case MP_NEQUAL:
 			match();
-			return;
+			return matched;
 		default:
 			error("Needed to find a relational operator");
+			return null;
 		}
 	}
 
@@ -702,47 +725,65 @@ public class Parser {
 		return factorTail(firstType);
 	}
 
-	private void factorTail() {
+	private Type factorTail(Type firstType) {
+		Lexeme operator;
+		Type secondType, castType;
 		switch (lookahead) {
 		// Rule 92
+		
 		case MP_AND:
+			operator = multiplyingOperator();
+			secondType = factor();
+			castType = semantic.booleanExpression("ANDS", firstType, secondType, operator);
+			return factorTail(castType);
 		case MP_DIV:
+			operator = multiplyingOperator();
+			secondType = factor();
+			castType = semantic.numericExpression("DIVS", firstType, secondType, operator);
+			return factorTail(castType);
 		case MP_MOD:
+			operator = multiplyingOperator();
+			secondType = factor();
+			if (firstType != Type.Integer || secondType != Type.Integer){
+					 throw new SemanticError("Cannot use MOD on non-integer values, ", operator);
+				 }
+			castType = semantic.numericExpression("MOD", firstType, secondType, operator);
+			return factorTail(castType);
 		case MP_FLOAT_DIVIDE:
+			operator = multiplyingOperator();
+			secondType = factor();
+			//if the second type is not already a float, cast it as a float.
+			if (secondType != Type.Float){
+				 if(!semantic.cast(secondType, Type.Float)){
+					 throw new SemanticError("Cannot cast to a float, ", operator);
+				 }
+				 }
+			castType = semantic.numericExpression("DIVS", firstType, Type.Float, operator);
+			return factorTail(castType);
 		case MP_TIMES:
-			multiplyingOperator();
-			factor();
-			factorTail();
+			operator = multiplyingOperator();
+			secondType = factor();
+			castType = semantic.numericExpression("MULS", firstType, secondType, operator);
+			return factorTail(castType);
 			// Rule 92
 		default:
-			return;
+			return firstType;
 		}
 	}
 
-	private void multiplyingOperator() {
+	private Lexeme multiplyingOperator() {
 		switch (lookahead) {
 		// Rule 94
 		case MP_TIMES:
-			match();
-			return;
-			// Rule 95
 		case MP_FLOAT_DIVIDE:
-			match();
-			return;
-			// Rule 96
 		case MP_DIV:
-			match();
-			return;
-			// Rule 97
 		case MP_MOD:
-			match();
-			return;
-			// Rule 98
 		case MP_AND:
 			match();
-			return;
+			return matched;
 		default:
 			error("Expected multiplying operator");
+			return null;
 		}
 	}
 
@@ -765,20 +806,27 @@ public class Parser {
 			Lexeme notLexeme = matched;
 			returnedType = factor();
 			if (returnedType != Type.Boolean) {
-				throw new SemanticError("not is only applicable for non boolean values at ", notLexeme);
+				throw new SemanticError("NOT is only applicable for non boolean values at ", notLexeme);
 			}
-			return;
+			return returnedType;
 			// Rule 105
 		case MP_LPAREN:
 			match();
 			returnedType = expression();
 			match(Token.MP_RPAREN);
-			return;
+			return returnedType;
 			// Rule 106
+		case MP_IDENTIFIER:
+			Typeclass idType = table.lookup(lookaheadLexeme.getLexemeContent());
+			if(Variable.isClassOf(idType)){
+				variableIdentifier();
+				return idType.getReturnType();
+			}else {
+				throw new SemanticError("Functions not implemented yet ", matched);
+			}
+			
 		default:
-			functionIdentifier();
-			optionalActualParameterList();
-			return;
+			throw new SemanticError("invalid token in expression -> factor ", matched);
 		}
 	}
 
@@ -810,9 +858,9 @@ public class Parser {
 		expression();
 	}
 
-	private void ordinalExpression() {
+	private Type ordinalExpression() {
 		// Rule 112
-		expression();
+		return expression();
 
 	}
 

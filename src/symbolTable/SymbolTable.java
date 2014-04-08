@@ -38,4 +38,9 @@ public class SymbolTable {
 	public String lookupAddress(String identName){
 		return scopeStack.lookupAddress(identName);
 	}
+	
+	//returns the sizeInBytes of the specified scope
+	public int getScopeSize(){
+		return scopeStack.getScopeSize();
+	}
 }

@@ -84,7 +84,9 @@ public class Scope {
 		else return null;
 	}
 	
-	
+	public int getScopeSize(){
+		return sizeInBytes;
+	}
 	class ScopeEntry {
 		final Typeclass type;
 		final int offset;

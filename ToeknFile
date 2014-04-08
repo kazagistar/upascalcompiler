@@ -1,0 +1,52 @@
+MP_PROGRAM           1     1    program
+MP_IDENTIFIER        1     9    Program2
+MP_SCOLON            1     17   ;
+MP_VAR               2     3    var
+MP_IDENTIFIER        2     7    Apples
+MP_COLON             2     14   :
+MP_INTEGER           2     16   integer
+MP_SCOLON            2     23   ;
+MP_IDENTIFIER        3     5    Fred
+MP_COLON             3     10   :
+MP_INTEGER           3     12   integer
+MP_SCOLON            3     19   ;
+MP_IDENTIFIER        4     5    X
+MP_COLON             4     7    :
+MP_INTEGER           4     9    integer
+MP_SCOLON            4     16   ;
+MP_BEGIN             5     3    begin
+MP_IDENTIFIER        6     5    Apples
+MP_ASSIGN            6     12   :=
+MP_INTEGER_LIT       6     15   0
+MP_SCOLON            6     16   ;
+MP_IDENTIFIER        7     5    X
+MP_ASSIGN            7     7    :=
+MP_INTEGER_LIT       7     10   10
+MP_SCOLON            7     12   ;
+MP_IDENTIFIER        8     5    Fred
+MP_ASSIGN            8     10   :=
+MP_IDENTIFIER        8     13   Apples
+MP_PLUS              8     20   +
+MP_IDENTIFIER        8     22   Apples
+MP_TIMES             8     29   *
+MP_IDENTIFIER        8     31   X
+MP_SCOLON            8     32   ;
+MP_WRITE             9     5    Write
+MP_LPAREN            9     10   (
+MP_STRING_LIT        9     11   Apples = 
+MP_COMMA             9     22   ,
+MP_IDENTIFIER        9     24   Apples
+MP_COMMA             9     30   ,
+MP_STRING_LIT        9     32   ; X = 
+MP_COMMA             9     40   ,
+MP_IDENTIFIER        9     42   X
+MP_COMMA             9     43   ,
+MP_STRING_LIT        9     44    and Fred = 
+MP_COMMA             9     58   ,
+MP_IDENTIFIER        9     60   Fred
+MP_RPAREN            9     64   )
+MP_SCOLON            9     65   ;
+MP_END               10    3    end
+MP_PERIOD            10    6    .
+MP_EOF               10    7    
+MP_EOF               10    7    
