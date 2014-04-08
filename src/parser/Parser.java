@@ -819,8 +819,7 @@ public class Parser {
 		case MP_IDENTIFIER:
 			Typeclass idType = table.lookup(lookaheadLexeme.getLexemeContent());
 			if(Variable.isClassOf(idType)){
-				variableIdentifier();
-				return idType.getReturnType();
+				return semantic.load(variableIdentifier());
 			}else {
 				throw new SemanticError("Functions not implemented yet ", matched);
 			}
