@@ -94,7 +94,7 @@ public class SemanticAnalysis {
 	//operation = String containtaiging either ADDS, MULS, SUBS,DIVS,MODS 
 	// op1Type = type of the top thing on stack
 	//op2Type = type of the second thing on stack
-	public Type numericExpression(String operation,Type op1Type, Type op2Type, Lexeme symbol){
+	public Type numericExpression(String operation,Type op2Type, Type op1Type, Lexeme symbol){
 		if (op1Type.equals(Type.Integer) && op2Type.equals(Type.Integer)){
 			writer.println(operation);
 			return Type.Integer;
