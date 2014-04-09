@@ -10,10 +10,12 @@ public class SemanticAnalysis {
 
 	private final PrintWriter writer;
 	private final SymbolTable symbols;
+	private int labelCounter = 1;
 	
 	public SemanticAnalysis(PrintWriter writer, SymbolTable symbols){
 		this.writer = writer;
 		this.symbols = symbols;
+		
 		
 	}
 	//symbol = src
@@ -34,6 +36,29 @@ public class SemanticAnalysis {
 		writer.println("PUSH " + symbols.lookupAddress(symbol.getLexemeContent()));
 		return type.getReturnType();
 	}
+
+	//creates a label
+	public Label generateLabel() {
+		return new Label(labelCounter++);
+	}
+	
+	//writes label destination
+	public void writeLabel(Label label){
+		label.write();
+		writer.println(label + ":");
+	}
+	
+	//goto a target label
+	public void goTo(Label target){
+		writer.println("BR " + target);
+	}
+	
+	//goTo if False
+	public void goToFalse(Label target){
+		writer.println("BRFS " + target);
+	}
+	
+	
 	
 	// symbol = dst
 	public void store(Lexeme symbol, Type stackType){
@@ -91,7 +116,7 @@ public class SemanticAnalysis {
 		}
 	}
 	
-	//operation = String containtaiging either ADDS, MULS, SUBS,DIVS,MODS 
+	//operation = String containing either ADDS, MULS, SUBS,DIVS,MODS 
 	// op1Type = type of the top thing on stack
 	//op2Type = type of the second thing on stack
 	public Type numericExpression(String operation,Type op2Type, Type op1Type, Lexeme symbol){
@@ -107,7 +132,7 @@ public class SemanticAnalysis {
 		}
 		else if(op1Type.equals(Type.Float) && op2Type.equals(Type.Integer)){
 			//moves op2 to top of stack, casts it as a float, and moves it back to original possition. 
-			writer.println("PUSH -1(SP)");
+			writer.println("PUSH -2(SP)");
 			writer.println("CASTSF");
 			writer.println("POP -2(SP)");
 			// convert to a float operation
@@ -123,7 +148,7 @@ public class SemanticAnalysis {
 		}
 	}
 	
-	//operation = String containtaiging either ADDS, MULS, SUBS,DIVS,MODS 
+	//operation = String containing either ADDS, MULS, SUBS,DIVS,MODS 
 		// op1Type = type of the top thing on stack
 		//op2Type = type of the second thing on stack
 		public Type relationalExpression(String operation,Type op1Type, Type op2Type, Lexeme symbol){
@@ -222,6 +247,7 @@ public class SemanticAnalysis {
 			writer.println("PUSH #" + literal);
 			return Type.Float;
 		case MP_STRING_LIT:
+			// converting string format from pascal strings to asm formatted strings
 			literal = literalLexeme.getLexemeContent();
 			literal = literal.replace("\\", "\\\\");
 			literal = "\"" + literal + "\"";
@@ -238,4 +264,8 @@ public class SemanticAnalysis {
 		}
 	}
 
+	public void addTo(Lexeme variable, int increment) {
+		String address = symbols.lookupAddress(variable.getLexemeContent());
+		writer.println("ADD " + address + " #" + increment + " " + address);
+	}
 }

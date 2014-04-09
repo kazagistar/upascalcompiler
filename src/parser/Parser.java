@@ -464,21 +464,28 @@ public class Parser {
 	private void ifStatement() {
 		// rule 56
 		match(Token.MP_IF);
+		Label falseTarget = semantic.generateLabel();
 		booleanExpression();
 		match(Token.MP_THEN);
+		semantic.goToFalse(falseTarget);
 		statement();
-		optionalElsePart();
+		optionalElsePart(falseTarget);
 	}
 
-	private void optionalElsePart() {
+	private void optionalElsePart(Label falseTarget) {
 		switch (lookahead) {
 		// rule 57
 		case MP_ELSE:
 			match();
+			Label endTarget = semantic.generateLabel();
+			semantic.goTo(endTarget);
+			semantic.writeLabel(falseTarget);
 			statement();
+			semantic.writeLabel(endTarget);
 			return;
 			// rule 58
 		default:
+			semantic.writeLabel(falseTarget);
 			return;
 		}
 	}
@@ -486,59 +493,92 @@ public class Parser {
 	private void repeatStatement() {
 		// rule 59
 		match(Token.MP_REPEAT);
+		Label begTarget = semantic.generateLabel();
+		semantic.writeLabel(begTarget);
 		statementSequence();
 		match(Token.MP_UNTIL);
 		booleanExpression();
+		semantic.goToFalse(begTarget);
 	}
 
 	private void whileStatement() {
 		// rule 60
 		match(Token.MP_WHILE);
+		Label begTarget = semantic.generateLabel();
+		semantic.writeLabel(begTarget);
 		booleanExpression();
+		Label exitTarget = semantic.generateLabel();
+		semantic.goToFalse(exitTarget);
 		match(Token.MP_DO);
 		statement();
+		semantic.goTo(begTarget);
+		semantic.writeLabel(exitTarget);
 	}
 
 	private void forStatement() {
 		// rule 61
 		match(Token.MP_FOR);
-		controlVariable();
+		Lexeme controlVar = controlVariable();
 		match(Token.MP_ASSIGN);
 		initialValue();
-		stepValue();
+		semantic.store(controlVar, Type.Integer);
+		Label begTarget = semantic.generateLabel();
+		semantic.writeLabel(begTarget);
+		boolean goesUp = stepValue();
 		finalValue();
+		semantic.load(controlVar);
+		if(goesUp) {
+			semantic.relationalExpression("CMPGES", Type.Integer, Type.Integer, controlVar);
+		} else {
+			semantic.relationalExpression("CMPLES", Type.Integer, Type.Integer, controlVar);
+		}
+		Label exitTarget = semantic.generateLabel();
+		semantic.goToFalse(exitTarget);
 		match(Token.MP_DO);
 		statement();
+		if(goesUp) {
+			semantic.addTo(controlVar, 1);
+		} else {
+			semantic.addTo(controlVar, -1);
+		}
+		semantic.goTo(begTarget);
+		semantic.writeLabel(exitTarget);
 	}
 
-	private void controlVariable() {
+	private Lexeme controlVariable() {
 		// rule 62
-		variableIdentifier();
+		return variableIdentifier();
 	}
 
 	private void initialValue() {
 		// Rule 63
-		ordinalExpression();
+		if(ordinalExpression() != Type.Integer) {
+			throw new SemanticError("Initial Value in for loop is not an Integer", matched);
+		}
 	}
 
-	private void stepValue() {
+	private boolean stepValue() {
 		switch (lookahead) {
 		// Rule 64
 		case MP_TO:
 			match();
-			return;
+			return true;
 			// Rule 65
 		case MP_DOWNTO:
 			match();
-			return;
+			return false;
 		default:
 			error("Expected step value (up to/ down to)");
+			return true;
 		}
 	}
 
 	private void finalValue() {
 		// Rule 66
-		ordinalExpression();
+		if(ordinalExpression() != Type.Integer) {
+			throw new SemanticError("Final Value in for loop is not an Integer", matched);
+		}
+		
 	}
 
 	private void procedureStatement() {
@@ -747,7 +787,7 @@ public class Parser {
 			if (firstType != Type.Integer || secondType != Type.Integer){
 					 throw new SemanticError("Cannot use MOD on non-integer values, ", operator);
 				 }
-			castType = semantic.numericExpression("MOD", firstType, secondType, operator);
+			castType = semantic.numericExpression("MODS", firstType, secondType, operator);
 			return factorTail(castType);
 		case MP_FLOAT_DIVIDE:
 			operator = multiplyingOperator();
@@ -854,7 +894,10 @@ public class Parser {
 
 	private void booleanExpression() {
 		// Rule 111
-		expression();
+		Type type = expression();
+		if (type != Type.Boolean){
+			throw new SemanticError("Expected boolean in expression, found " + type + " ", matched);
+		}
 	}
 
 	private Type ordinalExpression() {
