@@ -16,20 +16,24 @@ public class Parser {
 	private Lexeme matched;
 	private final SymbolTable table;
 	private final SemanticAnalysis semantic;
+	private final PrintWriter errors;
 
-	public Parser(LexemeProvider in, PrintWriter out) {
+	public Parser(LexemeProvider in, PrintWriter code, PrintWriter errors) {
 		this.in = in;
+		this.errors = errors;
 		// load the first lookahead
 		match();
 		table = new SymbolTable();
-		semantic = new SemanticAnalysis(out, table);
+		semantic = new SemanticAnalysis(code, table);
 	}
 
 	public void run() {
 		try {
 			systemGoal();
 		} catch (ParseError e) {
-			System.out.println(e);
+			errors.println(e);
+		} catch (SemanticError e) {
+			errors.println(e);
 		}
 	}
 

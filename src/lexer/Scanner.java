@@ -319,11 +319,24 @@ public class Scanner implements LexemeProvider {
 		return reserved;
 	}
 
+	private static boolean isWhitespace(byte b) {
+		return b == ' ' || b == '\t' || b == '\n' || b == '\r';
+	}
+
 	public static Scanner openFile(Path path) throws IOException {
 		return new Scanner(Files.readAllBytes(path));
 	}
 
-	private static boolean isWhitespace(byte b) {
-		return b == ' ' || b == '\t' || b == '\n' || b == '\r';
+	// Just a hack to quickly load stdin into a byte array
+	public static Scanner openFile(InputStream in) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[4096];
+		int read = 0;
+		do {
+			out.write(buffer, 0, read);
+			read = in.read(buffer);
+		} while (read >= 0);
+
+		return new Scanner(out.toByteArray());
 	}
 }

@@ -1,7 +1,5 @@
 package symbolTable;
 
-import symbolTable.Scope.ScopeEntry;
-
 public class SymbolTable {
 	private Scope scopeStack;
 	

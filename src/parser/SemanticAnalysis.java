@@ -3,9 +3,7 @@ package parser;
 import java.io.PrintWriter;
 
 import lexer.Lexeme;
-import lexer.Token;
 import symbolTable.*;
-import parser.*;
 public class SemanticAnalysis {
 
 	private final PrintWriter writer;
