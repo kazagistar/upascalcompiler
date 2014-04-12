@@ -140,9 +140,9 @@ public class SemanticAnalysis {
 		else if(op1Type.equals(Type.Float) && op2Type.equals(Type.Float)){
 			writer.println(operation + "F");
 			return Type.Float;
-		}else{
+		}else {
 			//if it is a boolean or string
-			throw new SemanticError(op1Type, op2Type, symbol);
+			throw new SemanticError("First parameter is " + op1Type + " and second is " + op2Type + " but expected numberic types ", symbol);
 		}
 	}
 	
@@ -158,9 +158,9 @@ public class SemanticAnalysis {
 		if (op1Type.equals(Type.Boolean) && op2Type.equals(Type.Boolean)) {
 			writer.println(operation);
 			return Type.Boolean;
-		}else{
+		} else {
 			//if it is a boolean or string
-			throw new SemanticError(op1Type, op2Type, symbol);
+			throw new SemanticError("First parameter is " + op1Type + " and second is " + op2Type + " but expected boolean types ", symbol);
 		}
 	}
 	
@@ -168,9 +168,7 @@ public class SemanticAnalysis {
 	public void read(Lexeme symbol){
 		Typeclass type = symbols.lookup(symbol.getLexemeContent());
 		if (type == null){
-			throw new SemanticError(" Is not Defined, cannot pop value. "
-					+ "Unsure what's supposed to happen. This occurs in "
-					+ "read when type == null ", symbol); // Unsure what to happen
+			throw new SemanticError("Must define " + symbol.getLexemeContent() + " before reading into it ", symbol); // Unsure what to happen
 		}
 		if (!Variable.isClassOf(type)){
 			if(Function.isClassOf(type))
@@ -199,11 +197,17 @@ public class SemanticAnalysis {
 	
 	//generates write statement code
 	public void write(Type stackType){
-//		if (stackType == Type.Boolean){
-//			writer.println("MOV #\"True\" 0(SP)");
-//			writer
-//		}
-		writer.println("WRTS");
+		if (stackType == Type.Boolean){
+			writer.println("MOV #\"False\" 0(SP)");
+			Label falseTarget = this.generateLabel();
+			this.goToFalse(falseTarget);
+			writer.println("MOV #\"True\" 1(SP)");
+			this.writeLabel(falseTarget);
+			writer.println("WRT 1(SP)");
+		}
+		else {
+			writer.println("WRTS");
+		}
 	}
 	public void newLine(){
 		writer.println("WRT #\"\\n\"");
@@ -250,7 +254,7 @@ public class SemanticAnalysis {
 			literal = literal.replace("\\", "\\\\");
 			literal = "\"" + literal + "\"";
 			writer.println("PUSH #" + literal);
-			return Type.Float;
+			return Type.String;
 		case MP_TRUE:
 			writer.println("PUSH #1");
 			return Type.Boolean;

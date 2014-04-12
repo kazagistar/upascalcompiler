@@ -219,7 +219,7 @@ public class Parser {
 		table.addScope(id, ScopeSort.Procedure);
 		List<Type> typeList = new ArrayList<Type>();
 		optionalFormalParameterList(typeList);
-		table.addParent(id, new Procedure((Type[]) typeList.toArray()));
+		table.addParent(id, new Procedure(typeList));
 	}
 
 	private void functionHeading() {
@@ -230,7 +230,7 @@ public class Parser {
 		List<Type> typeList = new ArrayList<Type>();
 		optionalFormalParameterList(typeList);
 		Type returnType = type();
-		table.addParent(id, new Function(returnType, (Type[]) typeList.toArray()));
+		table.addParent(id, new Function(returnType, typeList));
 	}
 
 	private List<Type> optionalFormalParameterList(List<Type> typeList) {
@@ -799,7 +799,7 @@ public class Parser {
 			//if the second type is not already a float, cast it as a float.
 			if (secondType != Type.Float){
 				 if(!semantic.cast(secondType, Type.Float)){
-					 throw new SemanticError("Cannot cast to a float, ", operator);
+					 throw new SemanticError("Cannot cast " + secondType + " to a Float, ", operator);
 				 }
 				 }
 			castType = semantic.numericExpression("DIVS", firstType, Type.Float, operator);

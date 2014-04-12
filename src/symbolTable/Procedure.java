@@ -1,11 +1,12 @@
 package symbolTable;
 
-import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 public class Procedure implements Typeclass {
-	public final Type[] params;
+	public final List<Type> params;
 	
-	public Procedure(Type[] params) {
+	public Procedure(List<Type> params) {
 		this.params = params;
 	}
 	
@@ -23,7 +24,15 @@ public class Procedure implements Typeclass {
 	public boolean matches(Typeclass other) {
 		if (! Procedure.isClassOf(other)) return false;
 		Procedure cast = (Procedure) other;
-		return Arrays.equals(this.params, cast.params);
+		boolean typesMatch = true;
+		// Check if parameters match types
+		Iterator<Type> ti = this.params.iterator();
+		Iterator<Type> to = cast.params.iterator();
+		while (ti.hasNext() && to.hasNext())
+			typesMatch &= ti.next().compareTo(to.next()) == 0;
+		// Check if parameter lists are the same length
+		typesMatch &= this.params == cast.params;
+		return typesMatch;
 	}
 	
 	
