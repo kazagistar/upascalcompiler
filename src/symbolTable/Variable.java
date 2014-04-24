@@ -18,7 +18,7 @@ public class Variable implements Typeclass {
 		} catch (ClassCastException e) {
 			return false;
 		}
-		return true;
+		return other != null;
 	}
 
 	@Override

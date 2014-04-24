@@ -51,11 +51,6 @@ public class SemanticAnalysis {
 		writer.println("BR " + target);
 	}
 	
-	public void invertBoolean(){
-		writer.println("ADD -1(SP) #1 -(SP)");
-		writer.println("MOD -1(SP) #2 -1(SP)");
-	}
-	
 	//goTo if False
 	public void goToFalse(Label target){
 		writer.println("BRFS " + target);
@@ -95,7 +90,7 @@ public class SemanticAnalysis {
 			throw new SemanticError("Cannot have more then 10 levels of nesting ", matched);
 		}
 		writer.println("MOV SP D" + nesting);
-		writer.println("ADD SP #" + offset + " SP");
+		shiftStack(offset);
 	}
 	
 	public void startCalled(Label location) {
@@ -115,7 +110,7 @@ public class SemanticAnalysis {
 			writer.println("POP -" + (params + 1) + "(SP)");
 		}
 		// Move stack pointer above the locals, to above the symbol table
-		writer.println("ADD SP #" + locals + " SP");
+		shiftStack(locals);
 		// Push old symbol table to save it
 		writer.println("PUSH D" + nesting);
 		// Compute the new symbol table... extra 1 because we pushed the old register already
@@ -126,7 +121,7 @@ public class SemanticAnalysis {
 		// Pop the old symbol table
 		writer.println("POP D" + symbols.getNestingLevel());
 		// remove the symbol table offset
-		writer.println("SUB SP #" + symbols.getScopeSize() + " SP");
+		shiftStack(-symbols.getScopeSize());
 		
 		if (symbols.getSort() != ScopeSort.Program) {
 			// because the PC was moved to below the symbol table, we can just return right now
@@ -139,12 +134,12 @@ public class SemanticAnalysis {
 	
 	public void funcActivationRecord() {
 		// Make space for return value at -2(DX) and PC at -1(DX)
-		writer.println("ADD SP #2 SP");
+		shiftStack(2);
 	}
 	
 	public void procActivationRecord() {
 		// Make space for the PC at -1(DX)
-		writer.println("ADD SP #1 SP");
+		shiftStack(1);
 	}
 	
 	public Type call(Lexeme funcName) {
@@ -288,13 +283,8 @@ public class SemanticAnalysis {
 	}
 	
 
-	public void not(Type stackType) {
-		if (stackType == Type.Integer) {
-			writer.println("NOTS");
-		}
-		else if (stackType == Type.Float) {
-			writer.println("NOTS");
-		}
+	public void not() {
+		writer.println("NOTS");
 	}
 	
 	public Type loadLiteral(Lexeme literalLexeme) {
@@ -330,5 +320,13 @@ public class SemanticAnalysis {
 	public void addTo(Lexeme variable, int increment) {
 		String address = symbols.lookupAddress(variable.getLexemeContent());
 		writer.println("ADD " + address + " #" + increment + " " + address);
+	}
+	
+	public void duplicate() {
+		writer.println("PUSH -1(SP)");
+	}
+	
+	public void shiftStack(int offset) {
+		writer.println("ADD SP #" + offset + " SP");
 	}
 }

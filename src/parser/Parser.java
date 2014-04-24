@@ -532,10 +532,11 @@ public class Parser {
 		match(Token.MP_ASSIGN);
 		initialValue();
 		semantic.store(controlVar, Type.Integer);
-		Label begTarget = semantic.generateLabel();
-		semantic.writeLabel(begTarget);
 		boolean goesUp = stepValue();
 		finalValue();
+		Label begTarget = semantic.generateLabel();
+		semantic.writeLabel(begTarget);
+		semantic.duplicate();
 		semantic.load(controlVar);
 		if(goesUp) {
 			semantic.relationalExpression("CMPGES", Type.Integer, Type.Integer, controlVar);
@@ -553,6 +554,8 @@ public class Parser {
 		}
 		semantic.goTo(begTarget);
 		semantic.writeLabel(exitTarget);
+		// Pop final value off stack
+		semantic.shiftStack(-1);
 	}
 
 	private Lexeme controlVariable() {
@@ -872,7 +875,7 @@ public class Parser {
 			if (returnedType != Type.Boolean) {
 				throw new SemanticError("NOT is only applicable for non boolean values at ", notLexeme);
 			} 
-			semantic.invertBoolean();
+			semantic.not();
 			return returnedType;
 			// Rule 105
 		case MP_LPAREN:

@@ -23,7 +23,7 @@ public class Function implements Typeclass {
 		} catch (ClassCastException e) {
 			return false;
 		}
-		return true;
+		return other != null;
 	}
 	
 	public boolean matches(Typeclass other) {
