@@ -871,7 +871,8 @@ public class Parser {
 			returnedType = factor();
 			if (returnedType != Type.Boolean) {
 				throw new SemanticError("NOT is only applicable for non boolean values at ", notLexeme);
-			}
+			} 
+			semantic.invertBoolean();
 			return returnedType;
 			// Rule 105
 		case MP_LPAREN:

@@ -51,6 +51,11 @@ public class SemanticAnalysis {
 		writer.println("BR " + target);
 	}
 	
+	public void invertBoolean(){
+		writer.println("ADD -1(SP) #1 -(SP)");
+		writer.println("MOD -1(SP) #2 -1(SP)");
+	}
+	
 	//goTo if False
 	public void goToFalse(Label target){
 		writer.println("BRFS " + target);
