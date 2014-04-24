@@ -86,23 +86,27 @@ public class Scanner implements LexemeProvider {
 					break; 
 			case 1:
 				
-				if (Character.isLetter(next) || Character.isDigit(next)){ 
-					state = 1;
-					stream.mark(Token.MP_IDENTIFIER);
-				} else if (next == '_') {
+				 
+				if (next == '_') {
 					state = 2;
+					stream.mark(Token.MP_IDENTIFIER);
+				}else if (Character.isLetter(next) || Character.isDigit(next)){ 
+					state = 1;
 					stream.mark(Token.MP_IDENTIFIER);
 				} else { 
 					return checkForReservedWordAndEmit();
 				}
+				break;
 			case 2: 
 				if(Character.isLetter(next) || Character.isDigit(next)) {
-					state = 2;
+					state = 1;
 					stream.mark(Token.MP_IDENTIFIER);
 				} else {
 					return checkForReservedWordAndEmit();
 				}
+				break;
 			}
+
 		}
 		return checkForReservedWordAndEmit();
 	}
