@@ -67,7 +67,7 @@ program lab1;
             writeln('-1');
             
         listNum(100 div 2);
-        listNum(factorial(9 div 3));
+        listNum(factorial(9 div s3));
         
         otherthing := 15 * 15 div 5 + 1 - 2 * 2;
         writeln('From *main* otherthing is: ', otherthing);

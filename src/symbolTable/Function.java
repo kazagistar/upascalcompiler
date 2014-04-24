@@ -26,7 +26,6 @@ public class Function implements Typeclass {
 		return true;
 	}
 	
-	@Override
 	public boolean matches(Typeclass other) {
 		if (! Function.isClassOf(other)) return false;
 		Function cast = (Function) other;
@@ -53,13 +52,13 @@ public class Function implements Typeclass {
 	}
 
 	@Override
-	public int getParamsSize(){
-		return params.size();
-	}
-
-	@Override
 	public Type getReturnType() {
 		
 		return returned;
+	}
+
+	@Override
+	public List<Type> getParamTypes() {
+		return params;
 	}
 }

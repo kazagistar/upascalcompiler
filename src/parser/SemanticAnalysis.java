@@ -142,11 +142,8 @@ public class SemanticAnalysis {
 		writer.println("ADD SP #1 SP");
 	}
 	
-	public Type call(Lexeme funcName, Typeclass actualParameters) {
+	public Type call(Lexeme funcName) {
 		Typeclass formalParameters = symbols.lookup(funcName.getLexemeContent());
-		if (!formalParameters.matches(actualParameters)) {
-			throw new SemanticError("Formal parameters did not match actual parameters ", funcName);
-		}
 		
 		writer.println("CALL " + formalParameters.getLocation());
 		return formalParameters.getReturnType();

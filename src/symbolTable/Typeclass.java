@@ -1,10 +1,10 @@
 package symbolTable;
 
+import java.util.List;
+
 import parser.Label;
 
 public interface Typeclass {
-	public boolean matches(Typeclass other);
-	
 	public int getSize();
 	
 	//procedure returns null
@@ -12,7 +12,7 @@ public interface Typeclass {
 	//variable returns its own type
 	public Type getReturnType();
 	
-	public int getParamsSize();
+	public List<Type> getParamTypes();
 	
 	public Label getLocation();
 }

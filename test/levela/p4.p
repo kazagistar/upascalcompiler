@@ -34,5 +34,5 @@ program Program4;
     Write(I, N);     
     Fred(I, N);     
     Write(I, N);     
-    Write(Why and True);
+    Write(Why);
   end.

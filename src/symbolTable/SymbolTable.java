@@ -52,7 +52,7 @@ public class SymbolTable {
 			return 0;
 		}
 		Typeclass record = lookup(scopeStack.getName());
-		return record.getParamsSize();
+		return record.getParamTypes().size();
 	}
 	
 	public String getCurrentName() {

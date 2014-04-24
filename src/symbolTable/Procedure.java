@@ -23,7 +23,6 @@ public class Procedure implements Typeclass {
 		return true;
 	}
 
-	@Override
 	public boolean matches(Typeclass other) {
 		if (! Procedure.isClassOf(other)) return false;
 		Procedure cast = (Procedure) other;
@@ -44,12 +43,6 @@ public class Procedure implements Typeclass {
 		return 0;
 	}
 	
-
-	@Override
-	public int getParamsSize(){
-		return params.size();
-	}
-	
 	@Override
 	public Label getLocation() {
 		return location;
@@ -58,6 +51,11 @@ public class Procedure implements Typeclass {
 	@Override
 	public Type getReturnType() {
 		return null;
+	}
+
+	@Override
+	public List<Type> getParamTypes() {
+		return params;
 	}
 
 }

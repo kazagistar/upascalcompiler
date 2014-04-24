@@ -2,6 +2,7 @@ package parser;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import symbolTable.*;
@@ -462,7 +463,6 @@ public class Parser {
 		semantic.write(ordinalExpression());
 	}
 
-	// TODO
 	private void assignmentStatement() {
 		// rule 54 or 55
 		Lexeme target = variableIdentifier(); // or functionIdentifier
@@ -595,11 +595,15 @@ public class Parser {
 		// Rule 67
 		Lexeme procName = procedureIdentifier();
 		semantic.procActivationRecord();
-		List <Type> actualParameters = optionalActualParameterList(new ArrayList<Type>());
-		semantic.call(procName, new Procedure(actualParameters, null));
+		Iterator<Type> formalParams = table.lookup(procName.getLexemeContent()).getParamTypes().iterator();
+		optionalActualParameterList(formalParams);
+		if (formalParams.hasNext()) {
+			throw new SemanticError("Not enough parameters for procedure ", procName);
+		}
+		semantic.call(procName);
 	}
 
-	private List<Type> optionalActualParameterList(List<Type> params) {
+	private void optionalActualParameterList(Iterator<Type> params) {
 		switch (lookahead) {
 		// Rule 68
 		case MP_LPAREN:
@@ -607,14 +611,14 @@ public class Parser {
 			actualParameter(params);
 			actualParameterTail(params);
 			match(Token.MP_RPAREN);
-			return params;
+			return;
 			// Rule 69
 		default:
-			return params;
+			return;
 		}
 	}
 
-	private void actualParameterTail(List<Type> params) {
+	private void actualParameterTail(Iterator<Type> params) {
 		switch (lookahead) {
 		// Rule 70
 		case MP_COMMA:
@@ -628,9 +632,18 @@ public class Parser {
 		}
 	}
 
-	private void actualParameter(List<Type> params) {
+	private void actualParameter(Iterator<Type> params) {
 		// Rule 72
-		params.add(ordinalExpression());
+		Type result = ordinalExpression();
+		if (params.hasNext()) {
+			Type formalParam = params.next();
+			if (!semantic.cast(result, formalParam)) {
+				throw new SemanticError("Cannot cast " + result + " to a " + formalParam + " ", matched);
+			}
+		}
+		else {
+			throw new SemanticError("Too many parameters ", matched);
+		}
 	}
 
 	private Type expression() {
@@ -874,10 +887,13 @@ public class Parser {
 			}
 			else if (Function.isClassOf(idType)){
 				Lexeme funcName = functionIdentifier();
-				List<Type> params = new ArrayList<Type>();
 				semantic.funcActivationRecord();
-				params = optionalActualParameterList(params);
-				return semantic.call(funcName, new Function(null, params, null));
+				Iterator<Type> formalParams = table.lookup(funcName.getLexemeContent()).getParamTypes().iterator();
+				optionalActualParameterList(formalParams);
+				if (formalParams.hasNext()) {
+					throw new SemanticError("Not enough parameters for function ", funcName);
+				}
+				return semantic.call(funcName);
 			}
 			else {
 				throw new SemanticError("cannot call procedure in an expression ", lookaheadLexeme);
