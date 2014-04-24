@@ -77,7 +77,6 @@ public class Parser {
 		// rule 1
 		program();
 		match(Token.MP_EOF);
-		semantic.halt();
 	}
 
 	// ProgramHeading ";" Block "."
@@ -85,7 +84,9 @@ public class Parser {
 		// rule 2
 		programHeading();
 		match(Token.MP_SCOLON);
-		block();
+		Label skipLocation = semantic.generateLabel();
+		semantic.goTo(skipLocation);
+		block(skipLocation);
 		match(Token.MP_PERIOD);
 	}
 
@@ -99,14 +100,14 @@ public class Parser {
 	// VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
 	// lookaheads for block include: {MP_FUNCTION, MP_BEGIN, MP_PROCEDURE,
 	// MP_VAR}
-	private void block() {
+	private void block(Label start) {
 		// rule 4
 		variableDeclarationPart();
 		procedureAndFunctionDeclarationPart();
 		//sets the D(n) pointer for each scope, and moves the stack above the symbol table
-		semantic.createSemanticRecord();
+		semantic.startCalled(start);
 		statementPart();
-		semantic.destroySemanticRecord();
+		semantic.endCalled();
 		table.destroyScope();
 	}
 
@@ -200,37 +201,41 @@ public class Parser {
 		// rule 17
 		procedureHeading();
 		match(Token.MP_SCOLON);
-		block();
+		block(table.lookup(table.getCurrentName()).getLocation());
 		match(Token.MP_SCOLON);
+		// return from procedure: 
 	}
 
 	private void functionDeclaration() {
 		// rule 18
 		functionHeading();
 		match(Token.MP_SCOLON);
-		block();
+		block(table.lookup(table.getCurrentName()).getLocation());
 		match(Token.MP_SCOLON);
 	}
 
 	private void procedureHeading() {
 		// rule 19
 		match(Token.MP_PROCEDURE);
-		String id = procedureIdentifier();
+		String id = procedureIdentifier().getLexemeContent();
 		table.addScope(id, ScopeSort.Procedure);
 		List<Type> typeList = new ArrayList<Type>();
 		optionalFormalParameterList(typeList);
-		table.addParent(id, new Procedure(typeList));
+		// Create and store label in scope, and then write the "start of call" content
+		table.addParent(id, new Procedure(typeList, semantic.generateLabel()));
 	}
 
 	private void functionHeading() {
 		// rule 20
 		match(Token.MP_FUNCTION);
-		String id = functionIdentifier();
+		String id = functionIdentifier().getLexemeContent();
 		table.addScope(id, ScopeSort.Function);
 		List<Type> typeList = new ArrayList<Type>();
 		optionalFormalParameterList(typeList);
+		match(Token.MP_COLON);
 		Type returnType = type();
-		table.addParent(id, new Function(returnType, typeList));
+		// Create and store label in scope, and then write the "start of call" content
+		table.addParent(id, new Function(returnType, typeList, semantic.generateLabel()));
 	}
 
 	private List<Type> optionalFormalParameterList(List<Type> typeList) {
@@ -356,7 +361,7 @@ public class Parser {
 				procedureStatement();
 			}else{
 			// elseif the identifier is a procedure
-			assignmentStatement();
+				assignmentStatement();
 			}
 			return;
 			// rule 39
@@ -457,6 +462,7 @@ public class Parser {
 		semantic.write(ordinalExpression());
 	}
 
+	// TODO
 	private void assignmentStatement() {
 		// rule 54 or 55
 		Lexeme target = variableIdentifier(); // or functionIdentifier
@@ -587,33 +593,34 @@ public class Parser {
 
 	private void procedureStatement() {
 		// Rule 67
-		procedureIdentifier();
-		optionalActualParameterList();
+		Lexeme procName = procedureIdentifier();
+		semantic.procActivationRecord();
+		List <Type> actualParameters = optionalActualParameterList(new ArrayList<Type>());
+		semantic.call(procName, new Procedure(actualParameters, null));
 	}
 
-	private void optionalActualParameterList() {
+	private List<Type> optionalActualParameterList(List<Type> params) {
 		switch (lookahead) {
 		// Rule 68
 		case MP_LPAREN:
 			match();
-			actualParameter();
-			actualParameterTail();
+			actualParameter(params);
+			actualParameterTail(params);
 			match(Token.MP_RPAREN);
-			return;
+			return params;
 			// Rule 69
 		default:
-			return;
+			return params;
 		}
 	}
 
-	private void actualParameterTail() {
+	private void actualParameterTail(List<Type> params) {
 		switch (lookahead) {
 		// Rule 70
 		case MP_COMMA:
 			match();
-			actualParameter();
-			actualParameterTail();
-			match(Token.MP_RPAREN);
+			actualParameter(params);
+			actualParameterTail(params);
 			return;
 			// Rule 71
 		default:
@@ -621,9 +628,9 @@ public class Parser {
 		}
 	}
 
-	private void actualParameter() {
+	private void actualParameter(List<Type> params) {
 		// Rule 72
-		ordinalExpression();
+		params.add(ordinalExpression());
 	}
 
 	private Type expression() {
@@ -864,8 +871,16 @@ public class Parser {
 			Typeclass idType = table.lookup(lookaheadLexeme.getLexemeContent());
 			if(Variable.isClassOf(idType)){
 				return semantic.load(variableIdentifier());
-			}else {
-				throw new SemanticError("Functions not implemented yet ", matched);
+			}
+			else if (Function.isClassOf(idType)){
+				Lexeme funcName = functionIdentifier();
+				List<Type> params = new ArrayList<Type>();
+				semantic.funcActivationRecord();
+				params = optionalActualParameterList(params);
+				return semantic.call(funcName, new Function(null, params, null));
+			}
+			else {
+				throw new SemanticError("cannot call procedure in an expression ", lookaheadLexeme);
 			}
 			
 		default:
@@ -884,16 +899,16 @@ public class Parser {
 		return matched;
 	}
 
-	private String procedureIdentifier() {
+	private Lexeme procedureIdentifier() {
 		// Rule 109
 		match(Token.MP_IDENTIFIER);
-		return matched.getLexemeContent();
+		return matched;
 	}
 
-	private String functionIdentifier() {
+	private Lexeme functionIdentifier() {
 		// Rule 110
 		match(Token.MP_IDENTIFIER);
-		return matched.getLexemeContent();
+		return matched;
 	}
 
 	private void booleanExpression() {

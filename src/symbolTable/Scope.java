@@ -4,16 +4,16 @@ import java.util.HashMap;
 
 public class Scope {
 	private final Scope parent; //doubles as next table pointer
-	private final String label; //the name of the scope
+	private final String name; //the name of the scope
 	private final HashMap<String, ScopeEntry> symbolTableScope; //stores lexeme name and Type var for each entry in scope
 	private final int nestingLevel; //(the nesting level of the scope)
 	private int sizeInBytes = 0; //the size (in Bytes of the scope table)
 	private int offsetCounter = 0;
-	private final ScopeSort sort; //the type of scope table
+	public final ScopeSort sort; //the type of scope table
 	
 	//creates a new scope with the given name and parent scope.
-	Scope(String label, ScopeSort sort, Scope parent){
-		this.label = label;
+	Scope(String name, ScopeSort sort, Scope parent){
+		this.name = name;
 		this.parent = parent;
 		this.sort = sort;
 		//if parent is not null, then nesting level = parents nestinglevel + 1, otherwise nesting level is 0
@@ -32,12 +32,9 @@ public class Scope {
 	//takes a Type which holds the identifiers name (string) and other attributes.
 	public void add(String identName, Typeclass type){
 		// checks to see if the given identifier is already used in this scope
-		// (or a parent scope), if so, an error is thrown, else the identifier
-		// is added to the scope.
-		
-		if (lookup(identName) != null) {
+		// if so, an error is thrown, else the identifier is added to the scope.
+		if (symbolTableScope.containsKey(identName)) {
 			throw new RuntimeException("ERROR, the identifier " + identName + " is already used in a parent scope, please change the name of the identifier!");
-
 		} else {
 			// where type.getIdentifier() returns a string containing the name
 			// of the identifier
@@ -95,6 +92,10 @@ public class Scope {
 			this.type = type;
 			this.offset = offset;
 		}
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 }

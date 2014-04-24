@@ -6,7 +6,7 @@ import lexer.Lexeme;
 import symbolTable.*;
 public class SemanticAnalysis {
 
-	private final PrintWriter writer;
+	public final PrintWriter writer;
 	private final SymbolTable symbols;
 	private int labelCounter = 1;
 	
@@ -61,36 +61,95 @@ public class SemanticAnalysis {
 	// symbol = dst
 	public void store(Lexeme symbol, Type stackType){
 		Typeclass type = symbols.lookup(symbol.getLexemeContent());
+		String storeLocation;
 		if (type == null){
 			throw new SemanticError("variable: " + symbol.getLexemeContent() + " Is not Defined, cannot pop value ", symbol);
 		}
-		if (!Variable.isClassOf(type)){
-			if(Function.isClassOf(type))
-			{
-				throw new SemanticError("Expected a Variable, found: Function ", symbol);
-			} else {
-				throw new SemanticError("Expected a Variable, found: Procedure ", symbol);
+		if (Variable.isClassOf(type)){
+			storeLocation = symbols.lookupAddress(symbol.getLexemeContent());
+		}
+		else if (Function.isClassOf(type)) {
+			if (!symbols.getCurrentName().equals(symbol.getLexemeContent())) {
+				throw new SemanticError("Can only assign to return values of innermost function ", symbol);
 			}
+			storeLocation = "-2(D" + symbols.getNestingLevel() + ")";
+		}
+		else {
+			throw new SemanticError("Cannot assign to a procedure ", symbol);
 		}
 		if(!cast(stackType, type.getReturnType())){
 			throw new SemanticError(stackType, type.getReturnType(), symbol);
 		}
-		writer.println("POP " + symbols.lookupAddress(symbol.getLexemeContent()));
+		writer.println("POP " + storeLocation);
 	}
 	
-	public void createSemanticRecord(){
-		int scopeOffSet = symbols.getScopeSize();
-		writer.println("MOV SP D0");
-		writer.println("ADD SP #" + scopeOffSet + " SP");
+	public void createSemanticRecord(Lexeme matched){
+		int offset = symbols.getScopeSize();
+		int nesting = symbols.getNestingLevel();
+		if (nesting > 9) {
+			throw new SemanticError("Cannot have more then 10 levels of nesting ", matched);
+		}
+		writer.println("MOV SP D" + nesting);
+		writer.println("ADD SP #" + offset + " SP");
 	}
 	
-	public void destroySemanticRecord(){
-		int scopeOffSet = symbols.getScopeSize();
-		writer.println("SUB SP #" + scopeOffSet + " SP");
+	public void startCalled(Label location) {
+		// jump point for scope body
+		writeLabel(location);
+		
+		// how many parameters the function/proc has
+		int params = symbols.getSizeParams();
+		// how many non-parameter local variables it has
+		int locals = symbols.getScopeSize() - params;
+		
+		// what register to use for the symbol table
+		int nesting = symbols.getNestingLevel();
+		
+		if (symbols.getSort() != ScopeSort.Program) {
+			// Pop the old PC to just below the future symbol table (the activation record?)
+			writer.println("POP -" + (params + 1) + "(SP)");
+		}
+		// Move stack pointer above the locals, to above the symbol table
+		writer.println("ADD SP #" + locals + " SP");
+		// Push old symbol table to save it
+		writer.println("PUSH D" + nesting);
+		// Compute the new symbol table... extra 1 because we pushed the old register already
+		writer.println("SUB SP #" + (symbols.getScopeSize() + 1) + " D" + nesting);
 	}
 	
-	public void halt(){
-		writer.println("HLT");
+	public void endCalled() {
+		// Pop the old symbol table
+		writer.println("POP D" + symbols.getNestingLevel());
+		// remove the symbol table offset
+		writer.println("SUB SP #" + symbols.getScopeSize() + " SP");
+		
+		if (symbols.getSort() != ScopeSort.Program) {
+			// because the PC was moved to below the symbol table, we can just return right now
+			writer.println("RET");
+		}
+		else {
+			writer.println("HLT");
+		}
+	}
+	
+	public void funcActivationRecord() {
+		// Make space for return value at -2(DX) and PC at -1(DX)
+		writer.println("ADD SP #2 SP");
+	}
+	
+	public void procActivationRecord() {
+		// Make space for the PC at -1(DX)
+		writer.println("ADD SP #1 SP");
+	}
+	
+	public Type call(Lexeme funcName, Typeclass actualParameters) {
+		Typeclass formalParameters = symbols.lookup(funcName.getLexemeContent());
+		if (!formalParameters.matches(actualParameters)) {
+			throw new SemanticError("Formal parameters did not match actual parameters ", funcName);
+		}
+		
+		writer.println("CALL " + formalParameters.getLocation());
+		return formalParameters.getReturnType();
 	}
 	
 	//return true if cast is successful

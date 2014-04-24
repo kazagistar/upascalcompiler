@@ -1,5 +1,7 @@
 package symbolTable;
 
+import parser.Label;
+
 public interface Typeclass {
 	public boolean matches(Typeclass other);
 	
@@ -9,4 +11,8 @@ public interface Typeclass {
 	//function returns its return type
 	//variable returns its own type
 	public Type getReturnType();
+	
+	public int getParamsSize();
+	
+	public Label getLocation();
 }

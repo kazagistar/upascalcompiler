@@ -41,4 +41,25 @@ public class SymbolTable {
 	public int getScopeSize(){
 		return scopeStack.getScopeSize();
 	}
+	
+	public int getNestingLevel(){
+		return scopeStack.getNestingLevel();
+	}
+	
+	public int getSizeParams(){
+		// Programs have no parameters
+		if (scopeStack.sort == ScopeSort.Program) {
+			return 0;
+		}
+		Typeclass record = lookup(scopeStack.getName());
+		return record.getParamsSize();
+	}
+	
+	public String getCurrentName() {
+		return scopeStack.getName();
+	}
+	
+	public ScopeSort getSort() {
+		return scopeStack.sort;
+	}
 }
