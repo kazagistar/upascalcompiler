@@ -1,7 +1,9 @@
 package symbolTable;
 
-public enum ScopeSort {
+public enum Kind {
 	Function,
 	Procedure,
+	Value,
+	Reference,
 	Program
 }

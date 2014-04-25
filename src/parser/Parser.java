@@ -151,7 +151,7 @@ public class Parser {
 		Type newType = type();
 		
 		for (String id : idList) {
-			table.add(id, new Variable(newType));
+			table.addValue(id, newType);
 		}
 	}
 
@@ -219,27 +219,27 @@ public class Parser {
 		// rule 19
 		match(Token.MP_PROCEDURE);
 		String id = procedureIdentifier().getLexemeContent();
-		table.addScope(id, ScopeSort.Procedure);
-		List<Type> typeList = new ArrayList<Type>();
+		table.addScope(id, Kind.Procedure);
+		List<Entry> typeList = new ArrayList<Entry>();
 		optionalFormalParameterList(typeList);
 		// Create and store label in scope, and then write the "start of call" content
-		table.addParent(id, new Procedure(typeList, semantic.generateLabel()));
+		table.addProcedureParent(id, semantic.generateLabel(), typeList);
 	}
 
 	private void functionHeading() {
 		// rule 20
 		match(Token.MP_FUNCTION);
 		String id = functionIdentifier().getLexemeContent();
-		table.addScope(id, ScopeSort.Function);
-		List<Type> typeList = new ArrayList<Type>();
+		table.addScope(id, Kind.Function);
+		List<Entry> typeList = new ArrayList<Entry>();
 		optionalFormalParameterList(typeList);
 		match(Token.MP_COLON);
 		Type returnType = type();
 		// Create and store label in scope, and then write the "start of call" content
-		table.addParent(id, new Function(returnType, typeList, semantic.generateLabel()));
+		table.addFunctionParent(id, returnType, semantic.generateLabel(), typeList);
 	}
 
-	private List<Type> optionalFormalParameterList(List<Type> typeList) {
+	private void optionalFormalParameterList(List<Entry> typeList) {
 		switch (lookahead) {
 		// rule 21
 		case MP_LPAREN:
@@ -247,14 +247,14 @@ public class Parser {
 			formalParameterSection(typeList);
 			formalParameterSectionTail(typeList);
 			match(Token.MP_RPAREN);
-			return typeList;
+			return;
 			// rule 22 (empty String)
 		default:
-			return typeList;
+			return;
 		}
 	}
 
-	private void formalParameterSectionTail(List<Type> typeList) {
+	private void formalParameterSectionTail(List<Entry> typeList) {
 		switch (lookahead) {
 		// rule 23
 		case MP_SCOLON:
@@ -268,7 +268,7 @@ public class Parser {
 		}
 	}
 
-	private void formalParameterSection(List<Type> typeList) {
+	private void formalParameterSection(List<Entry> typeList) {
 		switch (lookahead) {
 		// rule 25
 		case MP_IDENTIFIER:
@@ -283,27 +283,25 @@ public class Parser {
 		}
 	}
 
-	private void valueParameterSection(List<Type> typeList) {
+	private void valueParameterSection(List<Entry> typeList) {
 		// rule 27
 		List<String> idList = identifierList();
 		match(Token.MP_COLON);
 		Type newType = type();
 
 		for (String id : idList) {
-			table.add(id, new Variable(newType));
-			typeList.add(newType);
+			typeList.add(table.addValue(id, newType));
 		}
 	}
 
-	private void variableParameterSection(List<Type> typeList) {
+	private void variableParameterSection(List<Entry> typeList) {
 		match(Token.MP_VAR);
 		List<String> idList = identifierList();
 		match(Token.MP_COLON);
 		Type newType = type();
 
 		for (String id : idList) {
-			table.add(id, new Variable(newType));
-			typeList.add(newType);
+			typeList.add(table.addReference(id, newType));
 		}
 	}
 
@@ -358,9 +356,14 @@ public class Parser {
 			// symbol table context
 		case MP_IDENTIFIER:
 			// if the identifier is a function
-			if (Procedure.isClassOf(table.lookup(lookaheadLexeme.getLexemeContent()))){
-				procedureStatement();
-			}else{
+			Entry ident = table.lookup(lookaheadLexeme.getLexemeContent());
+			if (ident == null) {
+				throw new SemanticError("Undeclared identifier ", lookaheadLexeme);
+			}
+			else if (ident.getKind() == Kind.Procedure){
+				procedureStatement(ident);
+			}
+			else {
 			// elseif the identifier is a procedure
 				assignmentStatement();
 			}
@@ -594,11 +597,11 @@ public class Parser {
 		
 	}
 
-	private void procedureStatement() {
+	private void procedureStatement(Entry entry) {
 		// Rule 67
 		Lexeme procName = procedureIdentifier();
 		semantic.procActivationRecord();
-		Iterator<Type> formalParams = table.lookup(procName.getLexemeContent()).getParamTypes().iterator();
+		Iterator<Entry> formalParams = entry.getParamTypes().iterator();
 		optionalActualParameterList(formalParams);
 		if (formalParams.hasNext()) {
 			throw new SemanticError("Not enough parameters for procedure ", procName);
@@ -606,7 +609,7 @@ public class Parser {
 		semantic.call(procName);
 	}
 
-	private void optionalActualParameterList(Iterator<Type> params) {
+	private void optionalActualParameterList(Iterator<Entry> params) {
 		switch (lookahead) {
 		// Rule 68
 		case MP_LPAREN:
@@ -621,7 +624,7 @@ public class Parser {
 		}
 	}
 
-	private void actualParameterTail(Iterator<Type> params) {
+	private void actualParameterTail(Iterator<Entry> params) {
 		switch (lookahead) {
 		// Rule 70
 		case MP_COMMA:
@@ -635,17 +638,21 @@ public class Parser {
 		}
 	}
 
-	private void actualParameter(Iterator<Type> params) {
+	private void actualParameter(Iterator<Entry> params) {
 		// Rule 72
-		Type result = ordinalExpression();
-		if (params.hasNext()) {
-			Type formalParam = params.next();
-			if (!semantic.cast(result, formalParam)) {
+		if (!params.hasNext()) {
+			throw new SemanticError("Too many parameters ", matched);
+		}
+		Entry formalParam = params.next();
+		if (formalParam.getKind() == Kind.Value) {
+			Type result = ordinalExpression();
+			if (!semantic.cast(result, formalParam.getReturnType())) {
 				throw new SemanticError("Cannot cast " + result + " to a " + formalParam + " ", matched);
 			}
 		}
-		else {
-			throw new SemanticError("Too many parameters ", matched);
+		else if (formalParam.getKind() == Kind.Reference) {
+			Lexeme var = variableIdentifier();
+			semantic.loadReference(var, formalParam.getReturnType());
 		}
 	}
 
@@ -885,14 +892,14 @@ public class Parser {
 			return returnedType;
 			// Rule 106
 		case MP_IDENTIFIER:
-			Typeclass idType = table.lookup(lookaheadLexeme.getLexemeContent());
-			if(Variable.isClassOf(idType)){
-				return semantic.load(variableIdentifier());
+			Entry idType = table.lookup(lookaheadLexeme.getLexemeContent());
+			if(idType.getKind() == Kind.Procedure){
+				throw new SemanticError("cannot call procedure in an expression ", lookaheadLexeme);
 			}
-			else if (Function.isClassOf(idType)){
+			else if (idType.getKind() == Kind.Function){
 				Lexeme funcName = functionIdentifier();
 				semantic.funcActivationRecord();
-				Iterator<Type> formalParams = table.lookup(funcName.getLexemeContent()).getParamTypes().iterator();
+				Iterator<Entry> formalParams = table.lookup(funcName.getLexemeContent()).getParamTypes().iterator();
 				optionalActualParameterList(formalParams);
 				if (formalParams.hasNext()) {
 					throw new SemanticError("Not enough parameters for function ", funcName);
@@ -900,7 +907,7 @@ public class Parser {
 				return semantic.call(funcName);
 			}
 			else {
-				throw new SemanticError("cannot call procedure in an expression ", lookaheadLexeme);
+				return semantic.load(variableIdentifier());
 			}
 			
 		default:

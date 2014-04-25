@@ -19,20 +19,47 @@ public class SemanticAnalysis {
 	//symbol = src
 	//pushes a value onto the stack
 	public Type load(Lexeme symbol){
-		Typeclass type = symbols.lookup(symbol.getLexemeContent());
-		if (type == null){
-			throw new SemanticError( "variable: " + symbol.getLexemeContent() + " Is not Defined ", symbol);
+		Entry result = symbols.lookup(symbol.getLexemeContent());
+		if (result == null){
+			throw new SemanticError( "variable " + symbol.getLexemeContent() + " is not defined ", symbol);
 		}
-		if (!Variable.isClassOf(type)){
-			if(Function.isClassOf(type))
-			{
-				throw new SemanticError("Expected a Variable, found: Function ", symbol);
-			} else {
-				throw new SemanticError("Expected a Variable, found: Procedure ", symbol);
-			}
+		if (result.getKind() == Kind.Function) {
+			throw new SemanticError("Expected a variable but found function ", symbol);
 		}
-		writer.println("PUSH " + symbols.lookupAddress(symbol.getLexemeContent()));
-		return type.getReturnType();
+		if (result.getKind() == Kind.Procedure) {
+			throw new SemanticError("Expected a variable but found function ", symbol);
+		}
+		if (result.getKind() == Kind.Reference) {
+			writer.println("PUSH @" + result.getOffset() + "(D" + symbols.lookupNesting(symbol.getLexemeContent()) + ")");
+		}
+		else /* if result kind is Value */ {
+			writer.println("PUSH " + result.getOffset() + "(D" + symbols.lookupNesting(symbol.getLexemeContent()) + ")");
+		}
+		return result.getReturnType();
+	}
+	
+	public Type loadReference(Lexeme symbol, Type expected) {
+		Entry result = symbols.lookup(symbol.getLexemeContent());
+		if (result == null){
+			throw new SemanticError( "variable " + symbol.getLexemeContent() + " is not defined ", symbol);
+		}
+		if (result.getKind() == Kind.Function) {
+			throw new SemanticError("Expected a variable but found function ", symbol);
+		}
+		if (result.getKind() == Kind.Procedure) {
+			throw new SemanticError("Expected a variable but found function ", symbol);
+		}
+		if (expected != result.getReturnType()) {
+			throw new SemanticError(expected, result.getReturnType(), symbol);
+		}
+		if (result.getKind() == Kind.Reference) {
+			writer.println("PUSH " + result.getOffset() + "(D" + symbols.lookupNesting(symbol.getLexemeContent()) + ")");
+		}
+		else /* if result kind is Value */ {
+			writer.println("PUSH D" + symbols.lookupNesting(symbol.getLexemeContent()));
+			writer.println("ADD -1(SP) #" + result.getOffset() + " -1(SP)");
+		}
+		return result.getReturnType();
 	}
 
 	//creates a label
@@ -60,15 +87,18 @@ public class SemanticAnalysis {
 	
 	// symbol = dst
 	public void store(Lexeme symbol, Type stackType){
-		Typeclass type = symbols.lookup(symbol.getLexemeContent());
+		Entry result = symbols.lookup(symbol.getLexemeContent());
 		String storeLocation;
-		if (type == null){
+		if (result == null){
 			throw new SemanticError("variable: " + symbol.getLexemeContent() + " Is not Defined, cannot pop value ", symbol);
 		}
-		if (Variable.isClassOf(type)){
-			storeLocation = symbols.lookupAddress(symbol.getLexemeContent());
+		if (result.getKind() == Kind.Value){
+			storeLocation = result.getOffset() + "(D" + symbols.lookupNesting(symbol.getLexemeContent()) + ")";
 		}
-		else if (Function.isClassOf(type)) {
+		else if (result.getKind() == Kind.Reference){
+			storeLocation = "@" + result.getOffset() + "(D" + symbols.lookupNesting(symbol.getLexemeContent()) + ")";
+		}
+		else if (result.getKind() == Kind.Function) {
 			if (!symbols.getCurrentName().equals(symbol.getLexemeContent())) {
 				throw new SemanticError("Can only assign to return values of innermost function ", symbol);
 			}
@@ -77,8 +107,8 @@ public class SemanticAnalysis {
 		else {
 			throw new SemanticError("Cannot assign to a procedure ", symbol);
 		}
-		if(!cast(stackType, type.getReturnType())){
-			throw new SemanticError(stackType, type.getReturnType(), symbol);
+		if(!cast(stackType, result.getReturnType())){
+			throw new SemanticError(stackType, result.getReturnType(), symbol);
 		}
 		writer.println("POP " + storeLocation);
 	}
@@ -105,7 +135,7 @@ public class SemanticAnalysis {
 		// what register to use for the symbol table
 		int nesting = symbols.getNestingLevel();
 		
-		if (symbols.getSort() != ScopeSort.Program) {
+		if (symbols.getKind() != Kind.Program) {
 			// Pop the old PC to just below the future symbol table (the activation record?)
 			writer.println("POP -" + (params + 1) + "(SP)");
 		}
@@ -123,7 +153,7 @@ public class SemanticAnalysis {
 		// remove the symbol table offset
 		shiftStack(-symbols.getScopeSize());
 		
-		if (symbols.getSort() != ScopeSort.Program) {
+		if (symbols.getKind() != Kind.Program) {
 			// because the PC was moved to below the symbol table, we can just return right now
 			writer.println("RET");
 		}
@@ -143,7 +173,7 @@ public class SemanticAnalysis {
 	}
 	
 	public Type call(Lexeme funcName) {
-		Typeclass formalParameters = symbols.lookup(funcName.getLexemeContent());
+		Entry formalParameters = symbols.lookup(funcName.getLexemeContent());
 		
 		writer.println("CALL " + formalParameters.getLocation());
 		return formalParameters.getReturnType();
@@ -222,26 +252,30 @@ public class SemanticAnalysis {
 	
 	//generates read statement code
 	public void read(Lexeme symbol){
-		Typeclass type = symbols.lookup(symbol.getLexemeContent());
+		Entry type = symbols.lookup(symbol.getLexemeContent());
 		if (type == null){
 			throw new SemanticError("Must define " + symbol.getLexemeContent() + " before reading into it ", symbol); // Unsure what to happen
 		}
-		if (!Variable.isClassOf(type)){
-			if(Function.isClassOf(type))
-			{
-				throw new SemanticError("Expected a Variable, found: Function ", symbol);
-			} else {
-				throw new SemanticError("Expected a Variable, found: Procedure ", symbol);
-			}
+		if (type.getKind() == Kind.Function){
+			throw new SemanticError("Expected a variable, found: Function ", symbol);
 		}
-		if (type.getReturnType().equals(Type.String)){
-			writer.println("RDS "+symbols.lookupAddress(symbol.getLexemeContent()));
+		if (type.getKind() == Kind.Procedure) {
+			throw new SemanticError("Expected a variable, found: Procedure ", symbol);
 		}
-		else if (type.getReturnType().equals(Type.Integer)){
-			writer.println("RD "+symbols.lookupAddress(symbol.getLexemeContent()));
+		
+		String address = type.getOffset() + "(D" + symbols.lookupNesting(symbol.getLexemeContent()) + ")";
+		if (type.getKind() == Kind.Reference) {
+			address = "@" + address;
 		}
-		else if (type.getReturnType().equals(Type.Float)){
-			writer.println("RDF "+symbols.lookupAddress(symbol.getLexemeContent()));
+		
+		if (type.getReturnType() == Type.String){
+			writer.println("RDS " + address);
+		}
+		else if (type.getReturnType() == Type.Integer){
+			writer.println("RD " + address);
+		}
+		else if (type.getReturnType() == Type.Float){
+			writer.println("RDF " + address);
 		}
 		else {
 			throw new SemanticError("could not read in specified value ", symbol);
@@ -318,7 +352,8 @@ public class SemanticAnalysis {
 	}
 
 	public void addTo(Lexeme variable, int increment) {
-		String address = symbols.lookupAddress(variable.getLexemeContent());
+		Entry result = symbols.lookup(variable.getLexemeContent());
+		String address = result.getOffset() + "(D" + symbols.lookupNesting(variable.getLexemeContent()) + ")";
 		writer.println("ADD " + address + " #" + increment + " " + address);
 	}
 	

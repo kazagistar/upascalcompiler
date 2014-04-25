@@ -9,7 +9,7 @@ public class SemanticError extends RuntimeException {
 
 	private final String message;
 	
-	SemanticError(String message, Lexeme bad) {
+	public SemanticError(String message, Lexeme bad) {
 		String s = "SemanticError: " + message + "at row " + bad.getRow() + ": column " + bad.getColumn() + ".";
 		this.message = s;
 	}
